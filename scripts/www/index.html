@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>印啦啦学生姓名贴生成器</title>
+<style>
+  :root{
+    --brand:#1f2937;
+    --brand-2:#111827;
+    --accent:#b79a62;
+    --accent-2:#d6c39a;
+    --ink:#20252d;
+    --muted:#7a808b;
+    --line:#e6e2d9;
+    --line-strong:#d8d1c3;
+    --panel:#ffffff;
+    --panel-soft:#fbfaf7;
+    --bg:#f2f0eb;
+    --success:#4f7664;
+    --warning:#a66b2b;
+    --shadow:0 22px 60px rgba(31,36,45,.08),0 2px 8px rgba(31,36,45,.04);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+  body{background:radial-gradient(circle at 12% -10%,rgba(214,195,154,.22),transparent 28%),linear-gradient(180deg,#f7f5f0 0,#efede8 100%)}
+  button,input,select,textarea{font:inherit}
+  button{cursor:pointer}
+  .app{min-height:100vh}
+  .topbar{
+    height:74px;background:linear-gradient(120deg,#171d26 0%,#222a36 55%,#1b222c 100%);color:#fff;
+    display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid rgba(214,195,154,.28);
+    box-shadow:0 12px 35px rgba(17,24,39,.14);position:sticky;top:0;z-index:30
+  }
+  .brand{display:flex;align-items:center;gap:13px}
+   .brand-badge{width:42px;height:42px;border-radius:13px;background:#fe6603;display:grid;place-items:center;border:1px solid rgba(255,255,255,.2);font-size:17px;font-weight:900;letter-spacing:.08em;color:#fff;box-shadow:inset 0 1px rgba(255,255,255,.45),0 7px 18px rgba(0,0,0,.22)}
+  .brand h1{font-size:19px;line-height:1.1;margin:0;font-weight:760;letter-spacing:.04em}
+  .brand p{font-size:11px;margin:5px 0 0;color:#bdc3cc;letter-spacing:.025em}
+  .privacy{font-size:11px;color:#e4dfd2;background:rgba(255,255,255,.065);border:1px solid rgba(214,195,154,.26);padding:8px 12px;border-radius:9px;white-space:nowrap;letter-spacing:.04em}
+
+  .workspace{display:grid;grid-template-columns:410px minmax(760px,1fr);gap:18px;padding:18px;align-items:start;max-width:1900px;margin:0 auto}
+  .sidebar{background:rgba(255,255,255,.96);border:1px solid rgba(216,209,195,.9);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;position:sticky;top:92px;max-height:calc(100vh - 110px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:#cfc7b7 transparent}
+  .sidebar::-webkit-scrollbar{width:7px}.sidebar::-webkit-scrollbar-thumb{background:#cfc7b7;border-radius:99px}
+  .section{padding:18px 18px 17px;border-bottom:1px solid #eeebe4}
+  .section:last-child{border-bottom:none}
+  .section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+  .section-title h2{font-size:14px;margin:0;font-weight:790;color:#222831;display:flex;align-items:center;gap:9px;letter-spacing:.015em}
+  .step{display:inline-grid;place-items:center;min-width:28px;height:22px;padding:0 6px;border-radius:7px;background:#f1ece1;border:1px solid #ded2ba;color:#8a6d3c;font-size:10px;font-weight:850;letter-spacing:.08em}
+  .tip{font-size:10.5px;color:#92969d}
+  .seg{display:grid;grid-template-columns:1fr 1fr;background:#f1f0ed;padding:4px;border-radius:12px;gap:4px;border:1px solid #e8e4dc}
+  .seg button{border:0;background:transparent;color:#7a7e85;padding:10px 8px;border-radius:9px;font-size:12.5px;font-weight:700;transition:.18s ease}
+  .seg button:hover{color:#313842}
+  .seg button.active{background:#fff;color:#1e2530;box-shadow:0 4px 13px rgba(31,36,45,.09);outline:1px solid rgba(183,154,98,.18)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+  label.field{display:block;font-size:11.5px;color:#555b64}
+  label.field>span{display:block;margin-bottom:6px;font-weight:680;color:#4b515b}
+  input[type="text"],input[type="number"],select,textarea{
+    width:100%;border:1px solid #dfdcd4;border-radius:10px;background:#fff;color:#222831;outline:none;transition:border-color .16s,box-shadow .16s,background .16s;
+  }
+  input[type="text"],input[type="number"],select{height:40px;padding:0 11px}
+  textarea{min-height:132px;padding:11px 12px;resize:vertical;line-height:1.58;font-family:Consolas,"Microsoft YaHei",sans-serif;background:#fff}
+  input:hover,select:hover,textarea:hover{border-color:#cfc9bd}
+  input:focus,select:focus,textarea:focus{border-color:#9f8655;box-shadow:0 0 0 3px rgba(183,154,98,.12);background:#fff}
+  input::placeholder,textarea::placeholder{color:#b0b3b9}
+  .help{font-size:10.5px;color:#8a8f97;line-height:1.65;margin-top:8px}
+  .inline{display:flex;align-items:center;gap:8px}.inline>*{min-width:0}
+  .checkrow{display:flex;align-items:center;flex-wrap:wrap;gap:8px 13px;font-size:11.5px;color:#565d66}
+  .checkrow label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+  input[type="checkbox"],input[type="radio"]{accent-color:#80683d}
+  .range-row{display:grid;grid-template-columns:1fr 62px;gap:8px;align-items:center}
+  input[type="range"]{width:100%;accent-color:#80683d}
+  .mini-num{height:35px!important;text-align:center;padding:0 4px!important}
+
+  .theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .theme-card{border:1px solid #e4e0d8;background:#fff;border-radius:11px;padding:5px;transition:.18s ease;position:relative;box-shadow:0 1px 2px rgba(31,36,45,.02)}
+  .theme-card:hover{transform:translateY(-2px);border-color:#c8b58e;box-shadow:0 8px 18px rgba(31,36,45,.07)}
+  .theme-card.active{border-color:#a88a52;box-shadow:0 0 0 2px rgba(183,154,98,.13),0 8px 18px rgba(31,36,45,.06)}
+  .theme-thumb{aspect-ratio:1.72/1;border-radius:8px;background-size:cover;background-position:center;border:1px solid rgba(0,0,0,.045);overflow:hidden}
+  .theme-name{font-size:9.8px;text-align:center;margin-top:6px;color:#636972;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .theme-card.active::after{content:"✓";position:absolute;right:4px;top:4px;width:18px;height:18px;border-radius:7px;background:#232a34;color:#dfca9d;display:grid;place-items:center;font-size:10px;border:1px solid rgba(255,255,255,.8);box-shadow:0 3px 9px rgba(0,0,0,.16)}
+
+  .upload-box{border:1px dashed #cec5b4;background:linear-gradient(180deg,#fbfaf7,#f7f4ee);border-radius:12px;padding:11px;margin-top:11px}
+  .filebtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 11px;border-radius:9px;border:1px solid #d7d1c5;background:#fff;color:#333b46;font-weight:720;font-size:11.5px;transition:.16s ease}
+  .filebtn:hover{border-color:#ad9361;background:#fffdf8;color:#6f572d}
+  .file-list{margin-top:8px;font-size:10.5px;color:#848a93;max-height:50px;overflow:auto}
+  .hidden{display:none!important}
+
+  .preset-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .preset{border:1px solid #e2ded6;background:#fff;border-radius:10px;padding:9px 6px;font-size:10.5px;color:#737981;text-align:center;transition:.16s ease}
+  .preset b{display:block;color:#303741;font-size:11.5px;margin-bottom:3px}
+  .preset:hover{border-color:#c8b68f;background:#fffdf9}
+  .preset.active{border-color:#ad9160;background:#f7f2e8;color:#80683d;box-shadow:inset 0 0 0 1px rgba(183,154,98,.08)}
+  .custom-layout{margin-top:11px;padding:11px;background:#f7f6f3;border:1px solid #ece8e0;border-radius:12px}
+  .custom-layout .grid3{margin-top:8px}
+
+  .actionbar{padding:14px 17px 17px;display:grid;grid-template-columns:1fr 1fr;gap:9px;position:sticky;bottom:0;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid #e9e5dd;box-shadow:0 -10px 24px rgba(31,36,45,.035)}
+  .btn{height:43px;border-radius:10px;border:1px solid transparent;font-weight:760;font-size:12px;transition:.16s ease}
+  .btn:hover{transform:translateY(-1px)}
+  .btn.primary{grid-column:1/-1;background:linear-gradient(135deg,#252d38,#151b24);color:#f4ead5;border-color:#151b24;box-shadow:0 9px 20px rgba(20,27,36,.18)}
+  .btn.primary:hover{box-shadow:0 12px 25px rgba(20,27,36,.24)}
+  .btn.light{background:#fff;border-color:#ddd8cf;color:#4b535e}
+  .btn.warn{background:#faf7f0;border-color:#e7d9bd;color:#8b6736}
+
+  .main{min-width:0}
+  .preview-toolbar{background:rgba(255,255,255,.93);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 12px 32px rgba(31,36,45,.06);position:sticky;top:92px;z-index:20;backdrop-filter:blur(10px)}
+  .stats{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pill{font-size:11px;color:#747a83;background:#f6f4ef;border:1px solid #e7e1d6;padding:7px 10px;border-radius:10px;min-width:84px;text-align:center}
+  .pill strong{color:#232a34;font-size:12.5px;margin-left:2px}
+  .warn-text{font-size:11px;color:#9b6227;font-weight:700}
+  .print-note{font-size:10.5px;color:#81868e;text-align:right;line-height:1.5}
+  .preview-scroll{margin-top:14px;background:linear-gradient(145deg,#e6e3dd,#dddad4);border-radius:17px;padding:26px;min-height:calc(100vh - 190px);overflow:auto;border:1px solid #d8d3ca;box-shadow:inset 0 1px 2px rgba(255,255,255,.55)}
+  .sheet{width:210mm;height:297mm;background:#fff;margin:0 auto 26px;position:relative;overflow:hidden;box-shadow:0 24px 55px rgba(24,30,40,.17),0 3px 8px rgba(24,30,40,.08);page-break-after:always;break-after:page;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .sheet:last-child{page-break-after:auto;break-after:auto}
+  .sheet-grid{position:absolute;display:grid;align-content:start;justify-content:start}
+  .label-card{position:relative;overflow:hidden;background:#fff;display:block;isolation:isolate;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .label-bg{position:absolute;inset:0;background-repeat:no-repeat;background-position:center;background-size:cover;z-index:-3}
+  .label-wash{position:absolute;inset:0;background:#fff;z-index:-2;pointer-events:none}
+  .label-cut{position:absolute;inset:0;z-index:9;pointer-events:none;border:1px dashed rgba(45,51,59,.32)}
+  .label-content{position:absolute;left:7%;right:7%;top:50%;transform:translateY(-50%);z-index:3;line-height:1.16;overflow:hidden}
+  .label-name{font-weight:900;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .label-info{margin-top:4px;display:flex;gap:7px;flex-wrap:wrap;align-items:center;opacity:.93;font-weight:650}
+  .label-info span{white-space:nowrap}.label-phone{margin-top:3px;white-space:nowrap;opacity:.9}
+  .handwrite{display:grid;gap:6px;width:100%;font-weight:700}.handline{display:flex;align-items:end;gap:4px;white-space:nowrap}.handline i{display:block;border-bottom:1px solid currentColor;flex:1;height:.8em;opacity:.65}.empty-cell{background:transparent}
+
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#1d232c;color:#f6f0e4;padding:10px 15px;border-radius:10px;font-size:11.5px;opacity:0;pointer-events:none;transition:.2s;z-index:100;box-shadow:0 12px 30px rgba(0,0,0,.22);border:1px solid rgba(214,195,154,.22)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .print-only{display:none}
+  @media(max-width:1260px){.workspace{grid-template-columns:380px minmax(680px,1fr)}}
+  @media(max-width:900px){
+    .topbar{height:68px;padding:0 16px}.brand-badge{width:38px;height:38px}.brand h1{font-size:17px}.workspace{display:block;padding:10px}.sidebar{position:relative;top:0;max-height:none;margin-bottom:12px}.preview-toolbar{top:78px}.privacy{display:none}.preview-scroll{padding:10px}.section{padding:16px}.workspace{max-width:none}
+  }
+  @media print{
+    @page{size:A4 portrait;margin:0}
+    html,body{margin:0!important;padding:0!important;background:#fff!important}
+    .topbar,.sidebar,.preview-toolbar{display:none!important}
+    .workspace,.main,.preview-scroll,.print-area{display:block!important;margin:0!important;padding:0!important;background:#fff!important;border:0!important;box-shadow:none!important;overflow:visible!important}
+    .sheet{margin:0!important;box-shadow:none!important;width:210mm!important;height:297mm!important;page-break-after:always!important;break-after:page!important}
+    .sheet:last-child{page-break-after:auto!important;break-after:auto!important}
+  }
+
+.brand-badge1 {width:42px;height:42px;border-radius:13px;background:#fe6603;display:grid;place-items:center;border:1px solid rgba(255,255,255,.2);font-size:17px;font-weight:900;letter-spacing:.08em;color:#fff;box-shadow:inset 0 1px rgba(255,255,255,.45),0 7px 18px rgba(0,0,0,.22)}
+.brand-badge1 {width:38px;height:38px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-badge"><span class="brand-badge1"><img src="icon.png" width="42" height="42" alt=""/></span></div>
+      <div>
+        <h1>印啦啦学生姓名贴生成器</h1>
+        <p>NAME LABEL STUDIO · 批量生成 · A4 精准打印</p>
+      </div>
+    </div>
+    <div class="privacy">LOCAL ONLY · 姓名与图片仅在本机处理</div>
+  </header>
+
+  <div class="workspace">
+    <aside class="sidebar">
+      <section class="section">
+        <div class="section-title"><h2><span class="step">01</span>姓名数据</h2><span class="tip">家长 / 老师两种场景</span></div>
+        <div class="seg" id="modeSeg">
+          <button data-mode="single" class="active">单人铺满</button>
+          <button data-mode="batch">批量名单</button>
+        </div>
+
+        <div id="singlePanel" style="margin-top:12px">
+          <div class="grid2">
+            <label class="field"><span>姓名</span><input id="singleName" type="text" value="王小明" placeholder="如：王小明"></label>
+            <label class="field"><span>班级</span><input id="singleClass" type="text" value="一年级 3 班" placeholder="可留空"></label>
+            <label class="field"><span>学号</span><input id="singleNo" type="text" value="08" placeholder="可留空"></label>
+            <label class="field"><span>联系电话</span><input id="singlePhone" type="text" placeholder="可留空"></label>
+          </div>
+          <div class="grid2" style="margin-top:9px">
+            <label class="field"><span>生成张数</span><input id="singleCount" type="number" min="1" max="999" value="40"></label>
+            <label class="field"><span>快速数量</span>
+              <select id="countQuick"><option value="40">1页（40张）</option><option value="80">2页（80张）</option><option value="120">3页（120张）</option><option value="custom">自定义</option></select>
+            </label>
+          </div>
+        </div>
+
+        <div id="batchPanel" class="hidden" style="margin-top:12px">
+          <textarea id="batchText" placeholder="Excel 直接复制三列到这里：&#10;一年级3班&#9;01&#9;张小雨&#10;一年级3班&#9;02&#9;李乐乐&#10;一年级3班&#9;03&#9;陈子安"></textarea>
+          <div class="grid2" style="margin-top:8px">
+            <label class="field"><span>每位学生重复</span><input id="batchRepeat" type="number" min="1" max="100" value="2"></label>
+            <label class="field"><span>Excel / TXT / CSV 导入</span><label class="filebtn" style="height:38px;justify-content:center"><input id="dataFile" type="file" accept=".xlsx,.txt,.csv" hidden>选择文件</label></label>
+          </div>
+          <div class="help">支持：XLSX / TXT / CSV 直接导入，也可从 Excel 复制粘贴。字段可为：仅姓名；班级+姓名；班级+学号+姓名；第4列可填写“单独数量”。XLSX 默认读取第一个有数据的工作表；支持 Excel / WPS 常见文件结构。</div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><h2><span class="step">02</span>文字与样式</h2><span class="tip">也支持打印后手写</span></div>
+        <label class="field"><span>填写方式</span>
+          <select id="contentMode">
+            <option value="digital">电脑直接填写姓名</option>
+            <option value="handwrite">空白手写模板</option>
+          </select>
+        </label>
+        <div class="checkrow" style="margin-top:10px" id="displayChecks">
+          <label><input id="showClass" type="checkbox" checked>显示班级</label>
+          <label><input id="showNo" type="checkbox" checked>显示学号</label>
+          <label><input id="showPhone" type="checkbox">显示电话</label>
+        </div>
+        <div class="grid2" style="margin-top:10px">
+          <label class="field"><span>字体风格</span><select id="fontFamily"><option value="rounded">圆润黑体</option><option value="hei">简洁黑体</option><option value="kai">楷体</option><option value="song">宋体</option></select></label>
+          <label class="field"><span>文字对齐</span><select id="textAlign"><option value="center">居中</option><option value="left">靠左</option><option value="right">靠右</option></select></label>
+        </div>
+        <div style="margin-top:10px">
+          <label class="field"><span>姓名字号（pt）</span><div class="range-row"><input id="nameSize" type="range" min="11" max="28" step="1" value="18"><input id="nameSizeNum" class="mini-num" type="number" min="11" max="28" value="18"></div></label>
+          <label class="field" style="margin-top:8px"><span>辅助信息字号（pt）</span><div class="range-row"><input id="infoSize" type="range" min="6" max="13" step="1" value="8"><input id="infoSizeNum" class="mini-num" type="number" min="6" max="13" value="8"></div></label>
+          <label class="field" style="margin-top:8px"><span>文字上下位置（%）</span><div class="range-row"><input id="textY" type="range" min="25" max="75" step="1" value="50"><input id="textYNum" class="mini-num" type="number" min="25" max="75" value="50"></div></label>
+        </div>
+        <div class="grid2" style="margin-top:10px">
+          <label class="field"><span>姓名颜色</span><input id="nameColor" type="color" value="#1f2937" style="height:38px;padding:4px"></label>
+          <label class="field"><span>辅助文字颜色</span><input id="infoColor" type="color" value="#4b5563" style="height:38px;padding:4px"></label>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><h2><span class="step">03</span>背景与模板</h2><span class="tip">内置 / 无背景 / 自定义图片</span></div>
+        <div id="themeGrid" class="theme-grid"></div>
+        <div class="upload-box">
+          <div class="inline" style="justify-content:space-between">
+            <label class="filebtn"><input id="bgFiles" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden>上传背景图</label>
+            <button id="clearBg" class="filebtn" type="button" style="color:#666;border-color:#ddd">清空图片</button>
+          </div>
+          <div id="fileList" class="file-list">可一次选择多张，生成时自动循环使用。</div>
+          <div class="grid2" style="margin-top:9px">
+            <label class="field"><span>图片适配</span><select id="bgFit"><option value="cover">铺满裁切</option><option value="contain">完整显示</option><option value="100% 100%">拉伸铺满</option></select></label>
+            <label class="field"><span>背景变淡</span><select id="bgFade"><option value="0">不变淡</option><option value="0.15">15%</option><option value="0.3" selected>30%</option><option value="0.45">45%</option><option value="0.6">60%</option><option value="0.75">75%</option></select></label>
+          </div>
+          <div class="grid2" style="margin-top:8px">
+            <label class="field"><span>水平位置</span><input id="bgPosX" type="number" min="0" max="100" value="50"></label>
+            <label class="field"><span>垂直位置</span><input id="bgPosY" type="number" min="0" max="100" value="50"></label>
+          </div>
+        </div>
+        <div class="checkrow" style="margin-top:10px">
+          <label><input id="themeShuffle" type="checkbox" checked>同主题随机小变化</label>
+          <label><input id="showCut" type="checkbox" checked>显示裁切线</label>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><h2><span class="step">04</span>打印排版</h2><span class="tip">物理尺寸按 mm</span></div>
+        <div class="preset-row" id="presetRow">
+          <button class="preset active" data-preset="medium"><b>中号 4×10</b>43×25mm</button>
+          <button class="preset" data-preset="large"><b>大号 3×8</b>58×30mm</button>
+          <button class="preset" data-preset="small"><b>小号 5×12</b>34×20mm</button>
+        </div>
+        <div class="custom-layout">
+          <div class="grid3">
+            <label class="field"><span>列数</span><input id="cols" type="number" min="1" max="10" value="4"></label>
+            <label class="field"><span>行数</span><input id="rows" type="number" min="1" max="30" value="10"></label>
+            <label class="field"><span>左边距 mm</span><input id="marginLeft" type="number" min="0" max="50" step="0.5" value="13"></label>
+          </div>
+          <div class="grid3">
+            <label class="field"><span>宽 mm</span><input id="labelW" type="number" min="10" max="100" step="0.5" value="43"></label>
+            <label class="field"><span>高 mm</span><input id="labelH" type="number" min="8" max="80" step="0.5" value="25"></label>
+            <label class="field"><span>上边距 mm</span><input id="marginTop" type="number" min="0" max="50" step="0.5" value="10"></label>
+          </div>
+          <div class="grid3">
+            <label class="field"><span>横间距 mm</span><input id="gapX" type="number" min="0" max="20" step="0.5" value="4"></label>
+            <label class="field"><span>纵间距 mm</span><input id="gapY" type="number" min="0" max="20" step="0.5" value="3"></label>
+            <label class="field"><span>圆角 mm</span><input id="radius" type="number" min="0" max="8" step="0.5" value="2"></label>
+          </div>
+          <div class="grid2">
+            <label class="field"><span>打印横向微调 mm</span><input id="offsetX" type="number" min="-8" max="8" step="0.2" value="0"></label>
+            <label class="field"><span>打印纵向微调 mm</span><input id="offsetY" type="number" min="-8" max="8" step="0.2" value="0"></label>
+          </div>
+          <div class="help">如果家里打印机有轻微偏移，可用“横向/纵向微调”校准；预切割标签纸也可直接改成厂家给你的尺寸。</div>
+        </div>
+      </section>
+
+      <div class="actionbar">
+        <button class="btn light" id="exampleBtn">填入示例</button>
+        <button class="btn warn" id="resetBtn">恢复默认</button>
+        <button class="btn primary" id="printBtn">打印 / 另存为 PDF</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="preview-toolbar">
+        <div class="stats">
+          <span class="pill">标签 <strong id="statLabels">40</strong> 张</span>
+          <span class="pill">每页 <strong id="statPerPage">40</strong> 张</span>
+          <span class="pill">共 <strong id="statPages">1</strong> 页</span>
+          <span id="layoutWarn" class="warn-text"></span>
+        </div>
+        <div class="print-note">打印建议：A4 / 纵向 / 缩放 100% 或“实际大小”<br>关闭“页眉和页脚”，背景图形需开启打印</div>
+      </div>
+      <div class="preview-scroll">
+        <div id="printArea" class="print-area"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const el = id => document.getElementById(id);
+
+  const state = {
+    mode:'single',
+    theme:'rainbow',
+    customBgs:[],
+    renderToken:0
+  };
+
+  const presets = {
+    medium:{cols:4,rows:10,w:43,h:25,gx:4,gy:3,ml:13,mt:10,r:2},
+    large:{cols:3,rows:8,w:58,h:30,gx:5,gy:6,ml:13,mt:7.5,r:2.5},
+    small:{cols:5,rows:12,w:34,h:20,gx:3,gy:3,ml:14,mt:12,r:1.7}
+  };
+
+  const themes = [
+    {id:'none',name:'无背景'},
+    {id:'minimal',name:'极简清新'},
+    {id:'rainbow',name:'奶油彩虹'},
+    {id:'forest',name:'森系叶子'},
+    {id:'ocean',name:'海洋泡泡'},
+    {id:'stars',name:'星际探索'},
+    {id:'stationery',name:'校园文具'},
+    {id:'sport',name:'运动活力'},
+    {id:'flowers',name:'柔粉花园'},
+    {id:'custom',name:'我的图片'}
+  ];
+
+  const fonts = {
+    rounded:'"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",Arial,sans-serif',
+    hei:'SimHei,"Microsoft YaHei",Arial,sans-serif',
+    kai:'KaiTi,STKaiti,"Kaiti SC",serif',
+    song:'SimSun,STSong,"Songti SC",serif'
+  };
+
+  function svgData(svg){ return `url("data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}")`; }
+
+  function themeSvg(id, variant=0){
+    const flip = variant % 2 ? -1 : 1;
+    const v = variant % 4;
+    const baseStart = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 290" preserveAspectRatio="xMidYMid slice">`;
+    const end = `</svg>`;
+    if(id==='none') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 290"><rect width="500" height="290" fill="#fff"/></svg>`;
+    if(id==='minimal') return baseStart+`
+      <rect width="500" height="290" rx="24" fill="#fff"/>
+      <rect x="8" y="8" width="484" height="274" rx="20" fill="none" stroke="#7fc8d8" stroke-width="5"/>
+      <path d="M18 70 C70 34 118 32 168 49" fill="none" stroke="#f4b7c8" stroke-width="10" stroke-linecap="round" opacity=".8"/>
+      <path d="M330 244 C385 272 446 264 485 222" fill="none" stroke="#f7d57a" stroke-width="9" stroke-linecap="round" opacity=".85"/>
+      <circle cx="55" cy="230" r="8" fill="#9eddbd"/><circle cx="77" cy="245" r="5" fill="#9eddbd"/><circle cx="435" cy="47" r="7" fill="#d9b7f1"/>
+    `+end;
+    if(id==='rainbow') return baseStart+`
+      <rect width="500" height="290" rx="26" fill="#fffaf2"/>
+      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#efb56a" stroke-width="4"/>
+      <g transform="translate(${v===1?350:18},${v===1?190:20}) scale(.95)">
+        <path d="M20 82 A70 70 0 0 1 160 82" fill="none" stroke="#f28e9e" stroke-width="14"/>
+        <path d="M35 82 A55 55 0 0 1 145 82" fill="none" stroke="#f4c56c" stroke-width="14"/>
+        <path d="M50 82 A40 40 0 0 1 130 82" fill="none" stroke="#83c8b2" stroke-width="14"/>
+        <circle cx="20" cy="85" r="18" fill="#fff"/><circle cx="160" cy="85" r="18" fill="#fff"/>
+      </g>
+      <g fill="#f2b0c2" opacity=".65"><circle cx="450" cy="45" r="6"/><circle cx="468" cy="63" r="4"/><circle cx="430" cy="67" r="3"/></g>
+      <path d="M400 247c25-18 55-13 82-35" stroke="#a9d9cd" stroke-width="8" stroke-linecap="round" fill="none" opacity=".65"/>
+    `+end;
+    if(id==='forest') return baseStart+`
+      <rect width="500" height="290" rx="26" fill="#f7fcf7"/>
+      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#80b98c" stroke-width="4"/>
+      <g transform="translate(${v===2?365:15},${v===2?170:20}) rotate(${flip*6})">
+        <path d="M50 190 C55 135 68 80 95 25" stroke="#5d8d67" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <ellipse cx="78" cy="58" rx="28" ry="13" fill="#a7d7a9" transform="rotate(-34 78 58)"/>
+        <ellipse cx="63" cy="99" rx="26" ry="12" fill="#c8e4b2" transform="rotate(28 63 99)"/>
+        <ellipse cx="89" cy="126" rx="27" ry="12" fill="#91c79a" transform="rotate(-30 89 126)"/>
+        <ellipse cx="57" cy="153" rx="24" ry="11" fill="#d6eabf" transform="rotate(25 57 153)"/>
+      </g>
+      <g fill="#a9cfa5" opacity=".6"><circle cx="447" cy="44" r="5"/><circle cx="466" cy="61" r="3"/><circle cx="430" cy="67" r="4"/></g>
+    `+end;
+    if(id==='ocean') return baseStart+`
+      <rect width="500" height="290" rx="26" fill="#f4fbff"/>
+      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#67b7d7" stroke-width="4"/>
+      <path d="M0 242 C65 213 110 270 175 242 S285 214 350 243 S455 266 510 235 L510 300 L0 300Z" fill="#cceef5" opacity=".85"/>
+      <path d="M0 258 C75 230 115 283 190 257 S300 234 370 258 S455 279 510 250" fill="none" stroke="#86cfdf" stroke-width="7" opacity=".8"/>
+      <g fill="none" stroke="#8ecfe4" stroke-width="4" opacity=".75"><circle cx="55" cy="58" r="14"/><circle cx="82" cy="38" r="7"/><circle cx="443" cy="69" r="9"/><circle cx="462" cy="46" r="5"/></g>
+      <g transform="translate(${v===3?360:42},${v===3?45:125})"><ellipse cx="52" cy="36" rx="42" ry="22" fill="#78bdd5"/><path d="M90 33 q28-20 38 2 q-14 22-39 15" fill="#78bdd5"/><circle cx="38" cy="30" r="3.5" fill="#234"/></g>
+    `+end;
+    if(id==='stars') return baseStart+`
+      <rect width="500" height="290" rx="26" fill="#f8f7ff"/>
+      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#8e8dd8" stroke-width="4"/>
+      <g fill="#f1c75b" opacity=".9"><path d="M60 43 l5 14 15 1-12 9 4 15-12-8-12 8 4-15-12-9 15-1z"/><path d="M438 222 l4 11 12 1-9 7 3 12-10-6-9 6 3-12-10-7 12-1z"/></g>
+      <g fill="#a8a7e7" opacity=".65"><circle cx="110" cy="232" r="5"/><circle cx="132" cy="210" r="3"/><circle cx="418" cy="58" r="4"/><circle cx="392" cy="38" r="3"/></g>
+      <g transform="translate(${v===1?350:30},${v===1?32:165}) rotate(${v===1?18:-12})"><path d="M40 0 C72 17 78 50 56 76 L38 98 L18 76 C-4 51 6 18 40 0Z" fill="#8d8dd4"/><circle cx="40" cy="42" r="14" fill="#f8f7ff"/><path d="M18 76 L3 94 L24 88 ZM56 76 L76 94 L55 89Z" fill="#bbb9ee"/><path d="M29 99 L39 126 L49 99" fill="#f3a05d"/></g>
+    `+end;
+    if(id==='stationery') return baseStart+`
+      <rect width="500" height="290" rx="26" fill="#fffaf5"/>
+      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#e1a36b" stroke-width="4"/>
+      <g transform="translate(${v===2?360:20},${v===2?160:25}) rotate(${flip*4})"><rect x="15" y="24" width="72" height="92" rx="7" fill="#9ccbd7"/><rect x="25" y="36" width="52" height="68" rx="4" fill="#f8ffff"/><line x1="34" y1="50" x2="68" y2="50" stroke="#c5dfe6" stroke-width="5"/><line x1="34" y1="65" x2="68" y2="65" stroke="#c5dfe6" stroke-width="5"/><line x1="34" y1="80" x2="60" y2="80" stroke="#c5dfe6" stroke-width="5"/><g transform="translate(77 12) rotate(18)"><rect width="16" height="108" rx="4" fill="#f1be62"/><polygon points="0,108 16,108 8,126" fill="#b77d58"/><rect y="0" width="16" height="16" fill="#ec8fa3"/></g></g>
+      <g fill="#e8c293" opacity=".65"><circle cx="444" cy="50" r="5"/><circle cx="467" cy="72" r="3"/><circle cx="423" cy="78" r="4"/></g>
+    `+end;
+    if(id==='sport') return baseStart+`
+      <rect width="500" height="290" rx="26" fill="#f8fcff"/>
+      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#5db7c8" stroke-width="4"/>
+      <g transform="translate(${v===2?375:27},${v===2?180:35})"><circle cx="48" cy="48" r="42" fill="#fff" stroke="#58a5b5" stroke-width="5"/><path d="M48 6 C33 24 31 70 48 90 M6 48 C30 34 67 34 90 48 M20 18 C38 34 60 62 76 78 M76 18 C58 34 34 64 20 78" stroke="#58a5b5" stroke-width="4" fill="none" opacity=".9"/></g>
+      <path d="M395 240 q28-50 76-24" fill="none" stroke="#f2a35f" stroke-width="10" stroke-linecap="round" opacity=".75"/>
+      <circle cx="432" cy="64" r="7" fill="#f5c061"/><circle cx="455" cy="42" r="4" fill="#f5c061"/>
+    `+end;
+    if(id==='flowers') return baseStart+`
+      <rect width="500" height="290" rx="26" fill="#fff9fb"/>
+      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#e49ab5" stroke-width="4"/>
+      <g transform="translate(${v===1?365:18},${v===1?182:26})"><path d="M35 170 C42 113 56 65 83 20" stroke="#7fae83" stroke-width="6" fill="none" stroke-linecap="round"/><ellipse cx="54" cy="119" rx="22" ry="10" fill="#acd0a5" transform="rotate(25 54 119)"/><ellipse cx="73" cy="78" rx="20" ry="10" fill="#b9d8aa" transform="rotate(-26 73 78)"/><g transform="translate(83 20)"><circle cx="0" cy="0" r="15" fill="#f4adc5"/><circle cx="20" cy="4" r="15" fill="#f7bfd2"/><circle cx="12" cy="23" r="15" fill="#eda3bd"/><circle cx="-8" cy="19" r="15" fill="#f7c2d4"/><circle cx="6" cy="10" r="7" fill="#f2c65c"/></g></g>
+      <g fill="#e8a7be" opacity=".55"><circle cx="445" cy="52" r="4"/><circle cx="466" cy="68" r="6"/><circle cx="422" cy="76" r="3"/></g>
+    `+end;
+    return themeSvg('none',0);
+  }
+
+  function themeBg(id, variant){ return svgData(themeSvg(id,variant)); }
+
+  function renderThemePicker(){
+    const grid = el('themeGrid');
+    grid.innerHTML='';
+    themes.forEach((t,i)=>{
+      const b=document.createElement('button');
+      b.type='button'; b.className='theme-card'+(state.theme===t.id?' active':''); b.dataset.theme=t.id;
+      const th=document.createElement('div'); th.className='theme-thumb';
+      if(t.id==='custom'){
+        th.style.background='linear-gradient(135deg,#fff1f6,#f4f6ff)';
+        th.style.position='relative';
+        th.innerHTML='<div style="display:grid;place-items:center;height:100%;font-size:19px;color:#b94e78">＋</div>';
+      }else th.style.backgroundImage=themeBg(t.id, i%4);
+      const name=document.createElement('div');name.className='theme-name';name.textContent=t.name;
+      b.append(th,name);
+      b.addEventListener('click',()=>{
+        if(t.id==='custom' && !state.customBgs.length){ el('bgFiles').click(); return; }
+        state.theme=t.id; renderThemePicker(); saveSettings(); scheduleRender();
+      });
+      grid.appendChild(b);
+    });
+  }
+
+  function setMode(mode){
+    state.mode=mode;
+    $$('#modeSeg button').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+    el('singlePanel').classList.toggle('hidden',mode!=='single');
+    el('batchPanel').classList.toggle('hidden',mode!=='batch');
+    scheduleRender();
+  }
+
+  function n(id, fallback=0){ const v=parseFloat(el(id).value); return Number.isFinite(v)?v:fallback; }
+  function s(id){ return el(id).value.trim(); }
+
+  function applyPreset(key){
+    const p=presets[key]; if(!p) return;
+    el('cols').value=p.cols;el('rows').value=p.rows;el('labelW').value=p.w;el('labelH').value=p.h;el('gapX').value=p.gx;el('gapY').value=p.gy;el('marginLeft').value=p.ml;el('marginTop').value=p.mt;el('radius').value=p.r;
+    $$('#presetRow .preset').forEach(b=>b.classList.toggle('active',b.dataset.preset===key));
+    saveSettings(); scheduleRender();
+  }
+
+  function markCustomLayout(){ $$('#presetRow .preset').forEach(b=>b.classList.remove('active')); }
+
+  function parseBatch(text){
+    const rows=[];
+    text.split(/\r?\n/).forEach(raw=>{
+      const line=raw.trim(); if(!line) return;
+      let parts=line.includes('\t')?line.split('\t'):line.split(/[,，]/);
+      parts=parts.map(x=>x.trim()).filter((x,i)=>x!=='' || i<3);
+      if(parts.some(x=>/姓名/.test(x)) && parts.some(x=>/班级|学号|姓名/.test(x))) return;
+      let item={className:'',no:'',name:'',phone:'',qty:null};
+      if(parts.length===1){ item.name=parts[0]; }
+      else if(parts.length===2){ item.className=parts[0];item.name=parts[1]; }
+      else { item.className=parts[0];item.no=parts[1];item.name=parts[2];if(parts[3] && /^\d+$/.test(parts[3])) item.qty=Math.max(1,parseInt(parts[3],10)); }
+      if(item.name) rows.push(item);
+    });
+    return rows;
+  }
+
+  function buildItems(){
+    const items=[];
+    const contentMode=el('contentMode').value;
+    if(contentMode==='handwrite'){
+      const count = state.mode==='single' ? Math.max(1,Math.floor(n('singleCount',40))) : Math.max(1,parseBatch(el('batchText').value).length * Math.max(1,Math.floor(n('batchRepeat',1))) || (Math.floor(n('cols',4))*Math.floor(n('rows',10))));
+      for(let i=0;i<count;i++) items.push({className:'',no:'',name:'',phone:'',handwrite:true});
+      return items;
+    }
+    if(state.mode==='single'){
+      const item={className:s('singleClass'),no:s('singleNo'),name:s('singleName')||'姓名',phone:s('singlePhone')};
+      const count=Math.max(1,Math.floor(n('singleCount',40)));
+      for(let i=0;i<count;i++) items.push({...item});
+    }else{
+      const parsed=parseBatch(el('batchText').value);
+      const repeat=Math.max(1,Math.floor(n('batchRepeat',1)));
+      parsed.forEach(row=>{
+        const q=row.qty || repeat;
+        for(let i=0;i<q;i++) items.push({...row});
+      });
+      if(!items.length) items.push({className:'一年级3班',no:'01',name:'张小雨',phone:''});
+    }
+    return items;
+  }
+
+  function bgFor(index){
+    if(state.theme==='custom'){
+      if(!state.customBgs.length) return {image:themeBg('none',0),custom:false};
+      return {image:`url("${state.customBgs[index % state.customBgs.length].data}")`,custom:true};
+    }
+    const variant=el('themeShuffle').checked ? index%4 : 0;
+    return {image:themeBg(state.theme,variant),custom:false};
+  }
+
+  function addText(card,item){
+    const content=document.createElement('div');content.className='label-content';
+    const align=el('textAlign').value; content.style.textAlign=align;
+    content.style.top=`${n('textY',50)}%`;
+    const family=fonts[el('fontFamily').value]||fonts.rounded; content.style.fontFamily=family;
+    const nameColor=el('nameColor').value; const infoColor=el('infoColor').value;
+    const nameSize=n('nameSize',18); const infoSize=n('infoSize',8);
+    if(item.handwrite){
+      const box=document.createElement('div');box.className='handwrite';box.style.fontSize=`${Math.max(8,infoSize+1)}pt`;box.style.color=infoColor;
+      const l1=document.createElement('div');l1.className='handline';l1.append(document.createTextNode('姓名：'),document.createElement('i'));
+      box.append(l1);
+      if(el('showClass').checked){const l=document.createElement('div');l.className='handline';l.append(document.createTextNode('班级：'),document.createElement('i'));box.append(l);}
+      if(el('showNo').checked){const l=document.createElement('div');l.className='handline';l.append(document.createTextNode('学号：'),document.createElement('i'));box.append(l);}
+      content.append(box);
+    }else{
+      const name=document.createElement('div');name.className='label-name';name.textContent=item.name;name.style.fontSize=`${nameSize}pt`;name.style.color=nameColor;
+      content.appendChild(name);
+      const info=[];
+      if(el('showClass').checked && item.className) info.push(`班级：${item.className}`);
+      if(el('showNo').checked && item.no) info.push(`学号：${item.no}`);
+      if(info.length){
+        const d=document.createElement('div');
+        d.className='label-info';
+        d.style.fontSize=`${infoSize}pt`;
+        d.style.color=infoColor;
+        // 辅助信息自动跟随“文字对齐”：只显示班级时居中，班级+学号时整组居中；左/右对齐同理。
+        d.style.justifyContent = align==='center' ? 'center' : (align==='right' ? 'flex-end' : 'flex-start');
+        d.style.width='100%';
+        info.forEach(t=>{const x=document.createElement('span');x.textContent=t;d.appendChild(x)});
+        content.appendChild(d);
+      }
+      if(el('showPhone').checked && item.phone){const p=document.createElement('div');p.className='label-phone';p.style.fontSize=`${Math.max(6,infoSize-.5)}pt`;p.style.color=infoColor;p.textContent=`电话：${item.phone}`;content.appendChild(p);}
+    }
+    card.appendChild(content);
+  }
+
+  function buildLabel(item,index,w,h,r){
+    const card=document.createElement('div');card.className='label-card';
+    card.style.width=`${w}mm`;card.style.height=`${h}mm`;card.style.borderRadius=`${r}mm`;
+    const bg=document.createElement('div');bg.className='label-bg';bg.style.borderRadius=`${r}mm`;
+    const b=bgFor(index);bg.style.backgroundImage=b.image;
+    if(b.custom){
+      const fit=el('bgFit').value;
+      bg.style.backgroundSize=fit;
+      bg.style.backgroundPosition=`${n('bgPosX',50)}% ${n('bgPosY',50)}%`;
+    }
+    const wash=document.createElement('div');wash.className='label-wash';wash.style.opacity=String(Math.max(0,Math.min(.95,n('bgFade',.3))));wash.style.borderRadius=`${r}mm`;
+    card.append(bg,wash);
+    addText(card,item);
+    if(el('showCut').checked){const cut=document.createElement('div');cut.className='label-cut';cut.style.borderRadius=`${r}mm`;card.appendChild(cut);}
+    return card;
+  }
+
+  function layoutFits(){
+    const cols=Math.max(1,Math.floor(n('cols',4))), rows=Math.max(1,Math.floor(n('rows',10)));
+    const w=n('labelW',43),h=n('labelH',25),gx=n('gapX',4),gy=n('gapY',3),ml=n('marginLeft',13),mt=n('marginTop',10),ox=n('offsetX',0),oy=n('offsetY',0);
+    const usedW=ml+ox+cols*w+(cols-1)*gx;
+    const usedH=mt+oy+rows*h+(rows-1)*gy;
+    return {ok:usedW<=210.01 && usedH<=297.01 && ml+ox>=-0.01 && mt+oy>=-0.01,usedW,usedH};
+  }
+
+  function render(){
+    const token=++state.renderToken;
+    const area=el('printArea');area.innerHTML='';
+    const items=buildItems();
+    const cols=Math.max(1,Math.floor(n('cols',4))),rows=Math.max(1,Math.floor(n('rows',10)));
+    const perPage=cols*rows;
+    const pages=Math.max(1,Math.ceil(items.length/perPage));
+    const w=n('labelW',43),h=n('labelH',25),gx=n('gapX',4),gy=n('gapY',3),ml=n('marginLeft',13),mt=n('marginTop',10),r=n('radius',2),ox=n('offsetX',0),oy=n('offsetY',0);
+    const fit=layoutFits();
+    el('statLabels').textContent=items.length; el('statPerPage').textContent=perPage; el('statPages').textContent=pages;
+    el('layoutWarn').textContent=fit.ok?'':`⚠ 当前排版超出 A4（${fit.usedW.toFixed(1)}×${fit.usedH.toFixed(1)}mm）`;
+
+    for(let p=0;p<pages;p++){
+      if(token!==state.renderToken) return;
+      const sheet=document.createElement('section');sheet.className='sheet';
+      const grid=document.createElement('div');grid.className='sheet-grid';
+      grid.style.left=`${ml}mm`;grid.style.top=`${mt}mm`;grid.style.gridTemplateColumns=`repeat(${cols}, ${w}mm)`;grid.style.gridTemplateRows=`repeat(${rows}, ${h}mm)`;grid.style.columnGap=`${gx}mm`;grid.style.rowGap=`${gy}mm`;grid.style.transform=`translate(${ox}mm,${oy}mm)`;
+      const start=p*perPage;
+      for(let i=0;i<perPage;i++){
+        const idx=start+i;
+        if(idx<items.length) grid.appendChild(buildLabel(items[idx],idx,w,h,r));
+        else {const empty=document.createElement('div');empty.className='empty-cell';empty.style.width=`${w}mm`;empty.style.height=`${h}mm`;grid.appendChild(empty);}
+      }
+      sheet.appendChild(grid);area.appendChild(sheet);
+    }
+  }
+
+  let rt;
+  function scheduleRender(){clearTimeout(rt);rt=setTimeout(render,60)}
+  function toast(msg){const t=el('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),1800)}
+
+  function syncRange(a,b){
+    const r=el(a), num=el(b);
+    r.addEventListener('input',()=>{num.value=r.value;scheduleRender();saveSettings()});
+    num.addEventListener('input',()=>{let v=Math.max(+r.min,Math.min(+r.max,+num.value||+r.value));r.value=v;num.value=v;scheduleRender();saveSettings()});
+  }
+
+  function saveSettings(){
+    try{
+      const ids=['contentMode','showClass','showNo','showPhone','fontFamily','textAlign','nameSize','infoSize','textY','nameColor','infoColor','bgFit','bgFade','bgPosX','bgPosY','themeShuffle','showCut','cols','rows','marginLeft','labelW','labelH','marginTop','gapX','gapY','radius','offsetX','offsetY'];
+      const o={theme:state.theme==='custom'?'rainbow':state.theme};
+      ids.forEach(id=>{const e=el(id);o[id]=e.type==='checkbox'?e.checked:e.value});
+      localStorage.setItem('nameTagSettingsV1',JSON.stringify(o));
+    }catch(_){ }
+  }
+  function loadSettings(){
+    try{
+      const o=JSON.parse(localStorage.getItem('nameTagSettingsV1')||'null');if(!o)return;
+      if(o.theme) state.theme=o.theme;
+      Object.entries(o).forEach(([id,v])=>{const e=el(id);if(!e)return;if(e.type==='checkbox')e.checked=!!v;else e.value=v});
+      el('nameSizeNum').value=el('nameSize').value;el('infoSizeNum').value=el('infoSize').value;el('textYNum').value=el('textY').value;
+    }catch(_){ }
+  }
+
+  function resetAll(){
+    localStorage.removeItem('nameTagSettingsV1');
+    state.mode='single';state.theme='rainbow';state.customBgs=[];
+    el('singleName').value='王小明';el('singleClass').value='一年级 3 班';el('singleNo').value='08';el('singlePhone').value='';el('singleCount').value=40;el('countQuick').value='40';
+    el('batchText').value='';el('batchRepeat').value=2;el('contentMode').value='digital';el('showClass').checked=true;el('showNo').checked=true;el('showPhone').checked=false;el('fontFamily').value='rounded';el('textAlign').value='center';el('nameSize').value=18;el('nameSizeNum').value=18;el('infoSize').value=8;el('infoSizeNum').value=8;el('textY').value=50;el('textYNum').value=50;el('nameColor').value='#1f2937';el('infoColor').value='#4b5563';el('bgFit').value='cover';el('bgFade').value='0.3';el('bgPosX').value=50;el('bgPosY').value=50;el('themeShuffle').checked=true;el('showCut').checked=true;el('offsetX').value=0;el('offsetY').value=0;
+    setMode('single');applyPreset('medium');renderThemePicker();el('fileList').textContent='可一次选择多张，生成时自动循环使用。';toast('已恢复默认设置');
+  }
+
+  function fillExample(){
+    setMode('batch');
+    el('batchText').value=['一年级3班\t01\t张小雨','一年级3班\t02\t李乐乐','一年级3班\t03\t陈子安','一年级3班\t04\t周可欣','一年级3班\t05\t赵一诺','一年级3班\t06\t林浩然','一年级3班\t07\t孙语桐','一年级3班\t08\t王嘉树'].join('\n');
+    el('batchRepeat').value=5;scheduleRender();toast('已填入 8 位学生示例');
+  }
+
+  function readBgFiles(files){
+    const arr=[...files].slice(0,20); if(!arr.length)return;
+    Promise.all(arr.map(file=>new Promise((resolve,reject)=>{
+      const rd=new FileReader();rd.onload=()=>resolve({name:file.name,data:rd.result});rd.onerror=reject;rd.readAsDataURL(file);
+    }))).then(list=>{
+      state.customBgs=list;state.theme='custom';el('fileList').textContent=`已加载 ${list.length} 张：`+list.map(x=>x.name).join('、');renderThemePicker();scheduleRender();toast(`已加载 ${list.length} 张背景图`);
+    }).catch(()=>toast('背景图读取失败，请换 PNG/JPG/WebP'));
+  }
+
+  function u16(dv,o){return dv.getUint16(o,true)}
+  function u32(dv,o){return dv.getUint32(o,true)}
+  function decodeUtf8(bytes){return new TextDecoder('utf-8').decode(bytes)}
+
+  async function unzipXlsx(arrayBuffer){
+    const bytes=new Uint8Array(arrayBuffer), dv=new DataView(arrayBuffer);
+    let eocd=-1;
+    for(let i=Math.max(0,bytes.length-65557);i<=bytes.length-22;i++){
+      if(u32(dv,i)===0x06054b50)eocd=i;
+    }
+    if(eocd<0) throw new Error('不是有效的 XLSX 文件');
+    const total=u16(dv,eocd+10), cdOffset=u32(dv,eocd+16);
+    const entries=new Map(); let p=cdOffset;
+    for(let i=0;i<total;i++){
+      if(u32(dv,p)!==0x02014b50) throw new Error('XLSX 目录结构异常');
+      const method=u16(dv,p+10), csize=u32(dv,p+20), usize=u32(dv,p+24);
+      const nlen=u16(dv,p+28), xlen=u16(dv,p+30), clen=u16(dv,p+32), local=u32(dv,p+42);
+      const name=decodeUtf8(bytes.slice(p+46,p+46+nlen));
+      if(u32(dv,local)!==0x04034b50) throw new Error('XLSX 文件结构异常');
+      const ln=u16(dv,local+26), lx=u16(dv,local+28), start=local+30+ln+lx;
+      const comp=bytes.slice(start,start+csize); let data;
+      if(method===0) data=comp;
+      else if(method===8){
+        if(typeof DecompressionStream==='undefined') throw new Error('当前浏览器版本过旧，无法解压 XLSX');
+        const ds=new DecompressionStream('deflate-raw');
+        data=new Uint8Array(await new Response(new Blob([comp]).stream().pipeThrough(ds)).arrayBuffer());
+      }else throw new Error('XLSX 使用了暂不支持的压缩方式');
+      if(usize && data.length!==usize){ /* 某些文件尺寸字段可能不一致，不作为致命错误 */ }
+      entries.set(name,data);
+      p+=46+nlen+xlen+clen;
+    }
+    return entries;
+  }
+
+  function xmlDoc(bytes){
+    const xml=decodeUtf8(bytes||new Uint8Array());
+    const doc=new DOMParser().parseFromString(xml,'application/xml');
+    if(doc.getElementsByTagName('parsererror').length || doc.getElementsByTagNameNS('*','parsererror').length) throw new Error('XLSX 内部 XML 解析失败');
+    return doc;
+  }
+
+  // XLSX 的 XML 在不同软件（Excel/WPS/LibreOffice/第三方库）中可能写成
+  // <row>、<x:row>、<main:row> 等不同命名空间前缀。统一按 localName 读取，避免误判“没有数据”。
+  function xmlAll(root, localName){
+    if(!root) return [];
+    try{
+      const ns=[...root.getElementsByTagNameNS('*',localName)];
+      if(ns.length) return ns;
+    }catch(_){ }
+    return [...root.getElementsByTagName(localName)].filter(n => (n.localName||n.nodeName.split(':').pop())===localName);
+  }
+  function xmlFirst(root, localName){ return xmlAll(root,localName)[0] || null; }
+
+  function colIndex(ref){
+    const m=String(ref||'').match(/^([A-Z]+)/i); if(!m)return 0;
+    let n=0; for(const ch of m[1].toUpperCase()) n=n*26+(ch.charCodeAt(0)-64);
+    return n-1;
+  }
+
+  function parseSharedStrings(entries){
+    const b=entries.get('xl/sharedStrings.xml'); if(!b)return [];
+    const doc=xmlDoc(b); return xmlAll(doc,'si').map(si=>xmlAll(si,'t').map(t=>t.textContent||'').join(''));
+  }
+
+  function parseStyles(entries){
+    const b=entries.get('xl/styles.xml'); if(!b)return {xf:[],fmt:new Map()};
+    const doc=xmlDoc(b), fmt=new Map();
+    xmlAll(doc,'numFmt').forEach(x=>fmt.set(x.getAttribute('numFmtId'),x.getAttribute('formatCode')||''));
+    const xf=[]; const cellXfs=xmlFirst(doc,'cellXfs');
+    if(cellXfs) [...cellXfs.children].filter(x=>(x.localName||x.nodeName.split(':').pop())==='xf').forEach(x=>xf.push(x.getAttribute('numFmtId')||'0'));
+    return {xf,fmt};
+  }
+
+  function displayCellValue(c,shared,styles){
+    const type=c.getAttribute('t')||'', style=Number(c.getAttribute('s')||0);
+    if(type==='inlineStr') return xmlAll(c,'t').map(t=>t.textContent||'').join('');
+    const v=(xmlFirst(c,'v')?.textContent)||'';
+    if(type==='s') return shared[Number(v)]??'';
+    if(type==='b') return v==='1'?'TRUE':'FALSE';
+    if(type==='str' || type==='e') return v;
+    if(v!=='' && /^-?\d+(?:\.\d+)?$/.test(v)){
+      const numFmtId=styles.xf[style];
+      const code=(styles.fmt.get(numFmtId)||'').replace(/"[^"]*"/g,'').replace(/\\./g,'');
+      if(/^0+$/.test(code) && Number.isFinite(Number(v))) return String(Math.trunc(Number(v))).padStart(code.length,'0');
+    }
+    return v;
+  }
+
+  function sheetRows(bytes,shared,styles){
+    const doc=xmlDoc(bytes), rows=[]; let maxCol=0;
+    const xmlRows=xmlAll(doc,'row').slice(0,5000);
+    for(const row of xmlRows){
+      const arr=[];
+      for(const c of xmlAll(row,'c')){
+        const ci=colIndex(c.getAttribute('r')); if(ci>50)continue;
+        arr[ci]=displayCellValue(c,shared,styles); maxCol=Math.max(maxCol,ci);
+      }
+      for(let i=0;i<=maxCol;i++) if(arr[i]==null)arr[i]='';
+      if(arr.some(v=>String(v).trim()!=='')) rows.push(arr);
+    }
+    return rows;
+  }
+
+  function workbookSheetPaths(entries){
+    const wb=entries.get('xl/workbook.xml'), rel=entries.get('xl/_rels/workbook.xml.rels');
+    if(!wb || !rel) return [...entries.keys()].filter(k=>/^xl\/worksheets\/sheet\d+\.xml$/i.test(k)).sort();
+    const wdoc=xmlDoc(wb), rdoc=xmlDoc(rel), relMap=new Map();
+    xmlAll(rdoc,'Relationship').forEach(r=>relMap.set(r.getAttribute('Id'),r.getAttribute('Target')));
+    const paths=[];
+    xmlAll(wdoc,'sheet').forEach(s=>{
+      const rid=s.getAttribute('r:id')||s.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id');
+      let target=relMap.get(rid)||''; if(!target)return;
+      target=target.replace(/^\//,'');
+      if(!target.startsWith('xl/')) target='xl/'+target.replace(/^\.\//,'');
+      const parts=[]; target.split('/').forEach(seg=>{if(seg==='..')parts.pop();else if(seg!=='.')parts.push(seg)});
+      paths.push(parts.join('/'));
+    });
+    return paths.length?paths:[...entries.keys()].filter(k=>/^xl\/worksheets\/sheet\d+\.xml$/i.test(k)).sort();
+  }
+
+  async function xlsxToTSV(file){
+    const entries=await unzipXlsx(await file.arrayBuffer());
+    const shared=parseSharedStrings(entries), styles=parseStyles(entries), paths=workbookSheetPaths(entries);
+    for(const path of paths){
+      const b=entries.get(path); if(!b)continue;
+      const rows=sheetRows(b,shared,styles);
+      if(rows.length){
+        return rows.map(r=>r.slice(0,12).map(v=>String(v??'').replace(/[\t\r\n]+/g,' ')).join('\t')).join('\n');
+      }
+    }
+    throw new Error('Excel 中没有找到可导入的数据');
+  }
+
+  async function textFileToString(file){
+    const ab=await file.arrayBuffer(), bytes=new Uint8Array(ab);
+    if(bytes.length>=3 && bytes[0]===0xEF && bytes[1]===0xBB && bytes[2]===0xBF) return new TextDecoder('utf-8').decode(bytes.slice(3));
+    try{return new TextDecoder('utf-8',{fatal:true}).decode(bytes)}catch(_){
+      try{return new TextDecoder('gb18030').decode(bytes)}catch(__){return new TextDecoder('utf-8').decode(bytes)}
+    }
+  }
+
+  function csvToTSV(text){
+    if(text.includes('\t')) return text;
+    const rows=[]; let row=[], cell='', quote=false;
+    const delim=(text.split(/\r?\n/,1)[0].split(';').length>text.split(/\r?\n/,1)[0].split(',').length)?';':',';
+    for(let i=0;i<text.length;i++){
+      const ch=text[i];
+      if(quote){
+        if(ch==='"' && text[i+1]==='"'){cell+='"';i++}
+        else if(ch==='"') quote=false;
+        else cell+=ch;
+      }else{
+        if(ch==='"') quote=true;
+        else if(ch===delim){row.push(cell);cell=''}
+        else if(ch==='\n'){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell=''}
+        else cell+=ch;
+      }
+    }
+    row.push(cell.replace(/\r$/,'')); if(row.some(x=>x!==''))rows.push(row);
+    return rows.map(r=>r.map(v=>String(v).replace(/[\t\r\n]+/g,' ')).join('\t')).join('\n');
+  }
+
+  async function readDataFile(file){
+    if(!file)return;
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    try{
+      let text='';
+      if(ext==='xlsx') text=await xlsxToTSV(file);
+      else if(ext==='csv') text=csvToTSV(await textFileToString(file));
+      else if(ext==='txt') text=await textFileToString(file);
+      else throw new Error('仅支持 XLSX、CSV、TXT 文件');
+      el('batchText').value=text; setMode('batch'); scheduleRender();
+      const count=parseBatch(text).length;
+      toast(count?`已导入 ${count} 位学生`:'文件已读取，请检查列格式');
+    }catch(err){
+      console.error(err); toast('导入失败：'+(err?.message||'文件格式异常'));
+    }finally{ el('dataFile').value=''; }
+  }
+
+  window.__nameTagXlsxTest={xlsxToTSV,parseBatch,unzipXlsx,workbookSheetPaths,sheetRows,parseSharedStrings,parseStyles};
+
+  function bind(){
+    $$('#modeSeg button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+    $$('#presetRow .preset').forEach(b=>b.addEventListener('click',()=>applyPreset(b.dataset.preset)));
+    ['cols','rows','marginLeft','labelW','labelH','marginTop','gapX','gapY','radius'].forEach(id=>el(id).addEventListener('input',()=>{markCustomLayout();saveSettings();scheduleRender()}));
+    ['offsetX','offsetY','contentMode','showClass','showNo','showPhone','fontFamily','textAlign','nameColor','infoColor','bgFit','bgFade','bgPosX','bgPosY','themeShuffle','showCut'].forEach(id=>el(id).addEventListener('input',()=>{saveSettings();scheduleRender()}));
+    ['singleName','singleClass','singleNo','singlePhone','singleCount','batchText','batchRepeat'].forEach(id=>el(id).addEventListener('input',scheduleRender));
+    el('countQuick').addEventListener('change',()=>{if(el('countQuick').value!=='custom'){el('singleCount').value=el('countQuick').value;scheduleRender()}});
+    el('singleCount').addEventListener('input',()=>{const v=el('singleCount').value;el('countQuick').value=['40','80','120'].includes(v)?v:'custom'});
+    syncRange('nameSize','nameSizeNum');syncRange('infoSize','infoSizeNum');syncRange('textY','textYNum');
+    el('bgFiles').addEventListener('change',e=>readBgFiles(e.target.files));
+    el('clearBg').addEventListener('click',()=>{state.customBgs=[];if(state.theme==='custom')state.theme='rainbow';el('bgFiles').value='';el('fileList').textContent='可一次选择多张，生成时自动循环使用。';renderThemePicker();scheduleRender();toast('已清空自定义背景')});
+    el('dataFile').addEventListener('change',e=>readDataFile(e.target.files[0]));
+    el('exampleBtn').addEventListener('click',fillExample);
+    el('resetBtn').addEventListener('click',()=>{if(confirm('恢复默认设置？学生姓名数据也会清空。')) resetAll()});
+    el('printBtn').addEventListener('click',()=>{const fit=layoutFits();if(!fit.ok && !confirm('当前排版超出 A4，打印可能被裁切。仍然继续吗？')) return;window.print()});
+    window.addEventListener('beforeprint',render);
+  }
+
+  loadSettings();bind();renderThemePicker();render();
+})();
+</script>
+</body>
+</html>
