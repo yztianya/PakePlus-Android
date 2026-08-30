@@ -148,7 +148,7 @@
 <div class="app">
   <header class="topbar">
     <div class="brand">
-      <div class="brand-badge"><span class="brand-badge1"><img src="icon.png" width="42" height="42" alt=""/></span></div>
+      <div><span><img src="icon.png" width="42" height="42" alt=""/></span></div>
       <div>
         <h1>印啦啦学生姓名贴生成器</h1>
         <p>NAME LABEL STUDIO · 批量生成 · A4 精准打印</p>
@@ -249,6 +249,7 @@
           <button class="preset active" data-preset="medium"><b>中号 4×10</b>43×25mm</button>
           <button class="preset" data-preset="large"><b>大号 3×8</b>58×30mm</button>
           <button class="preset" data-preset="small"><b>小号 5×12</b>34×20mm</button>
+          <button class="preset" data-preset="mini"><b>迷你 6×18</b>30×12mm</button>
         </div>
         <div class="custom-layout">
           <div class="grid3">
@@ -270,7 +271,7 @@
             <label class="field"><span>打印横向微调 mm</span><input id="offsetX" type="number" min="-8" max="8" step="0.2" value="0"></label>
             <label class="field"><span>打印纵向微调 mm</span><input id="offsetY" type="number" min="-8" max="8" step="0.2" value="0"></label>
           </div>
-          <div class="help">如果家里打印机有轻微偏移，可用“横向/纵向微调”校准；预切割标签纸也可直接改成厂家给你的尺寸。</div>
+          <div class="help">预设标签会以 A4 页面中心为基准自动居中；“横向/纵向微调”用于打印机校准。自定义排版时可手动调整边距。</div>
         </div>
       </section>
 
@@ -311,13 +312,15 @@
     mode:'single',
     theme:'rainbow',
     customBgs:[],
-    renderToken:0
+    renderToken:0,
+    preset:'medium'
   };
 
   const presets = {
     medium:{cols:4,rows:10,w:43,h:25,gx:4,gy:3,ml:13,mt:10,r:2},
     large:{cols:3,rows:8,w:58,h:30,gx:5,gy:6,ml:13,mt:7.5,r:2.5},
-    small:{cols:5,rows:12,w:34,h:20,gx:3,gy:3,ml:14,mt:12,r:1.7}
+    small:{cols:5,rows:12,w:34,h:20,gx:3,gy:3,ml:14,mt:12,r:1.7},
+    mini:{cols:6,rows:18,w:30,h:12,gx:2,gy:2,ml:10,mt:23.5,r:1.2}
   };
 
   const themes = [
@@ -453,12 +456,13 @@
 
   function applyPreset(key){
     const p=presets[key]; if(!p) return;
+    state.preset=key;
     el('cols').value=p.cols;el('rows').value=p.rows;el('labelW').value=p.w;el('labelH').value=p.h;el('gapX').value=p.gx;el('gapY').value=p.gy;el('marginLeft').value=p.ml;el('marginTop').value=p.mt;el('radius').value=p.r;
     $$('#presetRow .preset').forEach(b=>b.classList.toggle('active',b.dataset.preset===key));
     saveSettings(); scheduleRender();
   }
 
-  function markCustomLayout(){ $$('#presetRow .preset').forEach(b=>b.classList.remove('active')); }
+  function markCustomLayout(){ state.preset=null; $$('#presetRow .preset').forEach(b=>b.classList.remove('active')); }
 
   function parseBatch(text){
     const rows=[];
@@ -586,7 +590,21 @@
       if(token!==state.renderToken) return;
       const sheet=document.createElement('section');sheet.className='sheet';
       const grid=document.createElement('div');grid.className='sheet-grid';
-      grid.style.left=`${ml}mm`;grid.style.top=`${mt}mm`;grid.style.gridTemplateColumns=`repeat(${cols}, ${w}mm)`;grid.style.gridTemplateRows=`repeat(${rows}, ${h}mm)`;grid.style.columnGap=`${gx}mm`;grid.style.rowGap=`${gy}mm`;grid.style.transform=`translate(${ox}mm,${oy}mm)`;
+      if(state.preset==='mini') {
+        // 迷你 6×18（30×12mm）：整组 108 张以 A4 页面中心为基准，水平、垂直严格居中。
+        // 使用 grid 自身的 50% 定位 + -50% 回退，避免受固定边距影响。
+        grid.style.left='50%';
+        grid.style.top='50%';
+        grid.style.transform=`translate(calc(-50% + ${ox}mm), calc(-50% + ${oy}mm))`;
+      } else {
+        grid.style.left=`${ml}mm`;
+        grid.style.top=`${mt}mm`;
+        grid.style.transform=`translate(${ox}mm,${oy}mm)`;
+      }
+      grid.style.gridTemplateColumns=`repeat(${cols}, ${w}mm)`;
+      grid.style.gridTemplateRows=`repeat(${rows}, ${h}mm)`;
+      grid.style.columnGap=`${gx}mm`;
+      grid.style.rowGap=`${gy}mm`;
       const start=p*perPage;
       for(let i=0;i<perPage;i++){
         const idx=start+i;
@@ -610,7 +628,7 @@
   function saveSettings(){
     try{
       const ids=['contentMode','showClass','showNo','showPhone','fontFamily','textAlign','nameSize','infoSize','textY','nameColor','infoColor','bgFit','bgFade','bgPosX','bgPosY','themeShuffle','showCut','cols','rows','marginLeft','labelW','labelH','marginTop','gapX','gapY','radius','offsetX','offsetY'];
-      const o={theme:state.theme==='custom'?'rainbow':state.theme};
+      const o={theme:state.theme==='custom'?'rainbow':state.theme,preset:state.preset};
       ids.forEach(id=>{const e=el(id);o[id]=e.type==='checkbox'?e.checked:e.value});
       localStorage.setItem('nameTagSettingsV1',JSON.stringify(o));
     }catch(_){ }
@@ -620,13 +638,15 @@
       const o=JSON.parse(localStorage.getItem('nameTagSettingsV1')||'null');if(!o)return;
       if(o.theme) state.theme=o.theme;
       Object.entries(o).forEach(([id,v])=>{const e=el(id);if(!e)return;if(e.type==='checkbox')e.checked=!!v;else e.value=v});
+      if(o.preset==='mini' || (!o.preset && String(o.cols)==='6' && String(o.rows)==='18' && String(o.labelW)==='30' && String(o.labelH)==='12')) state.preset='mini';
+      else if(o.preset) state.preset=o.preset;
       el('nameSizeNum').value=el('nameSize').value;el('infoSizeNum').value=el('infoSize').value;el('textYNum').value=el('textY').value;
     }catch(_){ }
   }
 
   function resetAll(){
     localStorage.removeItem('nameTagSettingsV1');
-    state.mode='single';state.theme='rainbow';state.customBgs=[];
+    state.mode='single';state.theme='rainbow';state.customBgs=[];state.preset='medium';
     el('singleName').value='王小明';el('singleClass').value='一年级 3 班';el('singleNo').value='08';el('singlePhone').value='';el('singleCount').value=40;el('countQuick').value='40';
     el('batchText').value='';el('batchRepeat').value=2;el('contentMode').value='digital';el('showClass').checked=true;el('showNo').checked=true;el('showPhone').checked=false;el('fontFamily').value='rounded';el('textAlign').value='center';el('nameSize').value=18;el('nameSizeNum').value=18;el('infoSize').value=8;el('infoSizeNum').value=8;el('textY').value=50;el('textYNum').value=50;el('nameColor').value='#1f2937';el('infoColor').value='#4b5563';el('bgFit').value='cover';el('bgFade').value='0.3';el('bgPosX').value=50;el('bgPosY').value=50;el('themeShuffle').checked=true;el('showCut').checked=true;el('offsetX').value=0;el('offsetY').value=0;
     setMode('single');applyPreset('medium');renderThemePicker();el('fileList').textContent='可一次选择多张，生成时自动循环使用。';toast('已恢复默认设置');
