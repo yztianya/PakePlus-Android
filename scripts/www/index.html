@@ -862,8 +862,62 @@
     el('dataFile').addEventListener('change',e=>readDataFile(e.target.files[0]));
     el('exampleBtn').addEventListener('click',fillExample);
     el('resetBtn').addEventListener('click',()=>{if(confirm('恢复默认设置？学生姓名数据也会清空。')) resetAll()});
-    el('printBtn').addEventListener('click',()=>{const fit=layoutFits();if(!fit.ok && !confirm('当前排版超出 A4，打印可能被裁切。仍然继续吗？')) return;window.print()});
-    window.addEventListener('beforeprint',render);
+    // 打印 / 另存为 PDF
+    // 先立即同步渲染，再调用打印；避免 scheduleRender 的异步延迟导致
+    // WebView / 浏览器打印时拿到空白或旧页面。
+    let printing = false;
+
+    function printDocument(){
+      if(printing) return;
+      const fit=layoutFits();
+      if(!fit.ok && !confirm('当前排版超出 A4，打印可能被裁切。仍然继续吗？')) return;
+
+      printing = true;
+      const btn=el('printBtn');
+      const oldText=btn.textContent;
+      btn.disabled=true;
+      btn.textContent='正在准备打印…';
+
+      try{
+        // 取消尚未执行的异步渲染，直接同步生成最终打印内容
+        clearTimeout(rt);
+        render();
+
+        // 给浏览器 / Android WebView 一个渲染机会，再触发打印
+        requestAnimationFrame(()=>{
+          requestAnimationFrame(()=>{
+            try{
+              if(typeof window.print === 'function'){
+                window.print();
+              }else{
+                toast('当前环境不支持打印，请使用浏览器打开此页面');
+              }
+            }catch(err){
+              console.error('print error:',err);
+              toast('打印调用失败，请使用浏览器打开');
+            }finally{
+              setTimeout(()=>{
+                printing=false;
+                btn.disabled=false;
+                btn.textContent=oldText;
+              },800);
+            }
+          });
+        });
+      }catch(err){
+        console.error('prepare print error:',err);
+        printing=false;
+        btn.disabled=false;
+        btn.textContent=oldText;
+        toast('打印准备失败：'+(err?.message||'未知错误'));
+      }
+    }
+
+    el('printBtn').addEventListener('click',printDocument);
+    window.addEventListener('beforeprint',()=>{
+      clearTimeout(rt);
+      render();
+    });
   }
 
   loadSettings();bind();renderThemePicker();render();
