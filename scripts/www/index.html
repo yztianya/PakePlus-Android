@@ -1,76 +1,18 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>印啦啦注册码生成器</title>
-<style>
-*{box-sizing:border-box}body{margin:0;background:#f2f0eb;color:#20252d;font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif}
-.wrap{max-width:760px;margin:40px auto;padding:0 18px}.box{background:#fff;border:1px solid #e1ddd4;border-radius:18px;padding:28px;box-shadow:0 20px 50px rgba(31,36,45,.09)}
-h1{margin:0 0 6px;font-size:22px}.sub{color:#7a808b;font-size:12px;margin-bottom:24px}
-label{display:block;font-size:12px;font-weight:700;color:#4b515b;margin:14px 0 7px}
-input{width:100%;height:42px;border:1px solid #ddd8ce;border-radius:10px;padding:0 12px;outline:none}
-input:focus{border-color:#9f8655;box-shadow:0 0 0 3px rgba(183,154,98,.12)}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-button{height:43px;border:0;border-radius:10px;padding:0 18px;font-weight:800;cursor:pointer}
-.primary{background:#1f2937;color:#f4ead5}.copy{background:#f3efe7;color:#4b515b;margin-left:8px}
-.result{margin-top:20px;background:#faf8f3;border:1px dashed #cfc5b3;border-radius:12px;padding:16px}
-.code{font:800 22px/1.4 Consolas,monospace;letter-spacing:.06em;word-break:break-all}
-.hint{font-size:11px;color:#8a8f97;line-height:1.7;margin-top:12px}
-</style>
-</head>
-<body>
-<div class="wrap"><div class="box">
-<h1>印啦啦注册码生成器</h1>
-<div class="sub">内部使用 · 单机永久授权 · 不联网</div>
-<label>门店名称（仅用于你的记录）</label>
-<input id="store" placeholder="例如：长葛店01">
-<label>员工/电脑备注（可选）</label>
-<input id="remark" placeholder="例如：前台1号电脑">
-<label>机器码</label>
-<input id="machine" placeholder="例如：A8F3-72KD-91XM-5PQ7">
-<div style="margin-top:18px"><button class="primary" id="gen">生成注册码</button></div>
-<div class="result">
-<div style="font-size:11px;color:#7a808b;margin-bottom:6px">注册码</div>
-<div class="code" id="code">—</div>
-<div style="margin-top:12px"><button class="copy" id="copy">复制注册码</button></div>
-</div>
-<div class="hint">
-使用方法：员工打开软件，把机器码发给你；你在这里填写门店和机器码并生成注册码，再把注册码发给员工。<br>
-注册码只绑定机器码；门店名称和备注不会写入注册码。
-</div>
-</div></div>
-<script>
-const APP='YLL-STUDENT-NAMEPLATE-V1';
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>印啦啦注册码生成器</title><style>
+*{box-sizing:border-box}body{margin:0;background:#f2f0eb;color:#20252d;font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif}.wrap{max-width:760px;margin:40px auto;padding:0 18px}.box{background:#fff;border:1px solid #e1ddd4;border-radius:18px;padding:28px;box-shadow:0 20px 50px rgba(31,36,45,.09)}h1{margin:0 0 6px;font-size:22px}.sub{color:#7a808b;font-size:12px;margin-bottom:24px}label{display:block;font-size:12px;font-weight:700;color:#4b515b;margin:14px 0 7px}input,select{width:100%;height:42px;border:1px solid #ddd8ce;border-radius:10px;padding:0 12px;outline:none;background:#fff}input:focus,select:focus{border-color:#fe6603;box-shadow:0 0 0 3px rgba(254,102,3,.12)}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}button{height:43px;border:0;border-radius:10px;padding:0 18px;font-weight:800;cursor:pointer}.primary{background:#fe6603;color:#fff}.copy{background:#f3efe7;color:#4b515b}.result{margin-top:20px;background:#faf8f3;border:1px dashed #cfc5b3;border-radius:12px;padding:16px}.code{font:800 22px/1.4 Consolas,monospace;letter-spacing:.06em;word-break:break-all}.hint{font-size:11px;color:#8a8f97;line-height:1.7;margin-top:12px}.log{margin-top:24px;border-top:1px solid #eee7dc;padding-top:16px}.log-item{font-size:11px;padding:8px 0;border-bottom:1px solid #f0ebe3;display:grid;grid-template-columns:120px 1fr;gap:10px}.tag{font-weight:800;color:#4b515b}@media(max-width:600px){.row{grid-template-columns:1fr}}
+</style></head><body><div class="wrap"><div class="box"><h1>印啦啦注册码生成器</h1><div class="sub">内部使用 · 三款软件共用一个生成器 · 软件授权彼此独立</div>
+<label>授权软件</label><select id="product"><option value="YLL-NAMEPLATE-V1">印啦啦学生姓名牌生成器</option><option value="YLL-NAMESTICKER-V1">印啦啦学生姓名贴生成器</option><option value="YLL-AIPHOTO-V1">印啦啦AI证件照</option></select>
+<div class="row"><div><label>门店名称（仅用于记录）</label><input id="store" placeholder="例如：长葛店01"></div><div><label>电脑备注（可选）</label><input id="remark" placeholder="例如：前台1号电脑"></div></div>
+<label>机器码</label><input id="machine" placeholder="例如：A8F3-72KD-91XM-5PQ7"><div style="margin-top:18px"><button class="primary" id="gen">生成注册码</button></div>
+<div class="result"><div style="font-size:11px;color:#7a808b;margin-bottom:6px">注册码</div><div class="code" id="code">—</div><div style="margin-top:12px"><button class="copy" id="copy">复制注册码</button></div></div>
+<div class="hint">注意：姓名牌、姓名贴、AI证件照是三个独立授权产品。同一台电脑也必须分别激活；一个软件的注册码不能激活另一个软件。门店名称和电脑备注只保存在本生成器本机，不写入注册码。</div>
+<div class="log"><div style="font-size:12px;font-weight:800;margin-bottom:8px">本机生成记录</div><div id="log"></div></div>
+</div></div><script>
 const SECRET='YLL-INTERNAL-2026-PRINT-AUTH-7K9P';
-function hash32(str){
- let h=2166136261;
- for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}
- h+=h<<13;h^=h>>>7;h+=h<<3;h^=h>>>17;h+=h<<5;
- return (h>>>0).toString(16).toUpperCase().padStart(8,'0');
-}
-function makeCode(machine){
- const id=machine.replace(/-/g,'').trim().toUpperCase();
- if(!/^[0-9A-F]{32}$/.test(id)) return '';
- const raw=APP+'|'+id+'|'+SECRET;
- const a=hash32(raw),b=hash32(raw+'|A'),c=hash32(raw+'|B');
- return ('YLL-'+a.slice(0,4)+'-'+b.slice(0,4)+'-'+c.slice(0,4)).toUpperCase();
-}
-document.getElementById('gen').onclick=()=>{
- const m=document.getElementById('machine').value;
- const c=makeCode(m);
- document.getElementById('code').textContent=c||'机器码格式不正确';
- if(c) {
-   const key='YLL_LICENSE_LOG';
-   const arr=JSON.parse(localStorage.getItem(key)||'[]');
-   arr.push({store:document.getElementById('store').value.trim(),remark:document.getElementById('remark').value.trim(),machine:m.trim().toUpperCase(),license:c,time:new Date().toLocaleString()});
-   localStorage.setItem(key,JSON.stringify(arr));
- }
-};
-document.getElementById('copy').onclick=async()=>{
- const c=document.getElementById('code').textContent;
- if(c && c.startsWith('YLL-')) {await navigator.clipboard.writeText(c);document.getElementById('copy').textContent='已复制';setTimeout(()=>document.getElementById('copy').textContent='复制注册码',1200);}
-};
-</script>
-</body>
-</html>
+function hash32(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}h+=h<<13;h^=h>>>7;h+=h<<3;h^=h>>>17;h+=h<<5;return(h>>>0).toString(16).toUpperCase().padStart(8,'0')}
+function makeCode(app,machine){const id=machine.replace(/-/g,'').trim().toUpperCase();if(!/^[0-9A-F]{32}$/.test(id))return '';const raw=app+'|'+id+'|'+SECRET,a=hash32(raw),b=hash32(raw+'|A'),c=hash32(raw+'|B');return('YLL-'+a.slice(0,4)+'-'+b.slice(0,4)+'-'+c.slice(0,4)).toUpperCase()}
+function renderLog(){const arr=JSON.parse(localStorage.getItem('YLL_LICENSE_LOG_V2')||'[]');document.getElementById('log').innerHTML=arr.slice().reverse().slice(0,30).map(x=>'<div class="log-item"><div class="tag">'+x.product+'</div><div>'+x.store+(x.remark?' · '+x.remark:'')+'<br><span style="color:#8a8f97">'+x.machine+' → '+x.license+' · '+x.time+'</span></div></div>').join('')||'<div style="font-size:11px;color:#999">暂无记录</div>'}
+document.getElementById('gen').onclick=()=>{const app=document.getElementById('product').value,m=document.getElementById('machine').value,c=makeCode(app,m);document.getElementById('code').textContent=c||'机器码格式不正确';if(c){const names={'YLL-NAMEPLATE-V1':'学生姓名牌','YLL-NAMESTICKER-V1':'学生姓名贴','YLL-AIPHOTO-V1':'AI证件照'};const arr=JSON.parse(localStorage.getItem('YLL_LICENSE_LOG_V2')||'[]');arr.push({product:names[app],store:document.getElementById('store').value.trim(),remark:document.getElementById('remark').value.trim(),machine:m.trim().toUpperCase(),license:c,time:new Date().toLocaleString()});localStorage.setItem('YLL_LICENSE_LOG_V2',JSON.stringify(arr));renderLog()}};
+document.getElementById('copy').onclick=async()=>{const c=document.getElementById('code').textContent;if(c.startsWith('YLL-')){try{await navigator.clipboard.writeText(c)}catch(e){const t=document.createElement('textarea');t.value=c;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}document.getElementById('copy').textContent='已复制';setTimeout(()=>document.getElementById('copy').textContent='复制注册码',1200)}};
+renderLog();
+</script></body></html>
