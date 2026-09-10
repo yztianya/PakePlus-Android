@@ -33,7 +33,7 @@
     box-shadow:0 12px 35px rgba(17,24,39,.14);position:sticky;top:0;z-index:30
   }
   .brand{display:flex;align-items:center;gap:13px}
-   .brand-badge{width:42px;height:42px;border-radius:13px;background:#fe6603;display:grid;place-items:center;border:1px solid rgba(255,255,255,.2);font-size:17px;font-weight:900;letter-spacing:.08em;color:#fff;box-shadow:inset 0 1px rgba(255,255,255,.45),0 7px 18px rgba(0,0,0,.22)}
+  .brand-badge{width:42px;height:42px;border-radius:13px;background:#fe6603;display:grid;place-items:center;border:1px solid rgba(255,255,255,.2);font-size:17px;font-weight:900;letter-spacing:.08em;color:#fff;box-shadow:inset 0 1px rgba(255,255,255,.45),0 7px 18px rgba(0,0,0,.22)}
   .brand h1{font-size:19px;line-height:1.1;margin:0;font-weight:760;letter-spacing:.04em}
   .brand p{font-size:11px;margin:5px 0 0;color:#bdc3cc;letter-spacing:.025em}
   .privacy{font-size:11px;color:#e4dfd2;background:rgba(255,255,255,.065);border:1px solid rgba(214,195,154,.26);padding:8px 12px;border-radius:9px;white-space:nowrap;letter-spacing:.04em}
@@ -123,6 +123,20 @@
   .label-info span{white-space:nowrap}.label-phone{margin-top:3px;white-space:nowrap;opacity:.9}
   .handwrite{display:grid;gap:6px;width:100%;font-weight:700}.handline{display:flex;align-items:end;gap:4px;white-space:nowrap}.handline i{display:block;border-bottom:1px solid currentColor;flex:1;height:.8em;opacity:.65}.empty-cell{background:transparent}
 
+  /* 移动端友好提示弹窗遮罩 */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;display:grid;place-items:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s ease}
+  .modal-overlay.show{opacity:1;pointer-events:auto}
+  .modal-card{background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 25px 50px rgba(0,0,0,.25);transform:translateY(15px);transition:transform .25s ease}
+  .modal-overlay.show .modal-card{transform:translateY(0)}
+  .modal-card h3{margin:0 0 10px;font-size:17px;color:#1e2530;font-weight:800}
+  .modal-card p{margin:0 0 16px;font-size:12.5px;color:#555a64;line-height:1.6}
+  .modal-steps{background:#f8f7f4;border-radius:12px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:#444a54;border:1px solid #eae5dc}
+  .modal-steps ol{margin:0;padding-left:18px;line-height:1.7}
+  .modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .modal-btns button{height:42px;border-radius:10px;font-weight:750;font-size:12px}
+  .btn-modal-primary{background:#252d38;color:#f4ead5;border:0}
+  .btn-modal-secondary{background:#f1ece1;color:#555b64;border:1px solid #ded2ba}
+
   .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#1d232c;color:#f6f0e4;padding:10px 15px;border-radius:10px;font-size:11.5px;opacity:0;pointer-events:none;transition:.2s;z-index:100;box-shadow:0 12px 30px rgba(0,0,0,.22);border:1px solid rgba(214,195,154,.22)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -139,16 +153,14 @@
     .sheet{margin:0!important;box-shadow:none!important;width:210mm!important;height:297mm!important;page-break-after:always!important;break-after:page!important}
     .sheet:last-child{page-break-after:auto!important;break-after:auto!important}
   }
-
-.brand-badge1 {width:42px;height:42px;border-radius:13px;background:#fe6603;display:grid;place-items:center;border:1px solid rgba(255,255,255,.2);font-size:17px;font-weight:900;letter-spacing:.08em;color:#fff;box-shadow:inset 0 1px rgba(255,255,255,.45),0 7px 18px rgba(0,0,0,.22)}
-.brand-badge1 {width:38px;height:38px}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
     <div class="brand">
-      <div><span><img src="icon.png" width="42" height="42" alt=""/></span></div>
+      <div><span><img src="icon.png" width="42" height="42" alt="" onerror="this.style.display='none'"/></span></div>
       <div>
         <h1>印啦啦学生姓名贴生成器</h1>
         <p>NAME LABEL STUDIO · 批量生成 · A4 精准打印</p>
@@ -298,6 +310,26 @@
     </main>
   </div>
 </div>
+
+<!-- 移动端增强引导及图片下载备用弹窗 -->
+<div id="printModal" class="modal-overlay">
+  <div class="modal-card">
+    <h3>📱 移动端打印指引</h3>
+    <p>检测到您当前可能处于手机浏览器或微信/QQ内置环境，直接调用系统打印可能无响应。</p>
+    <div class="modal-steps">
+      <ol>
+        <li>建议点击右上角 <strong>...</strong> 或 <strong>safari分享图标</strong>。</li>
+        <li>选择 <strong>“在浏览器中打开”</strong>（Safari 或 Chrome）。</li>
+        <li>如果当前浏览器支持，也可以直接点击下方<strong>“导出当前页为长图”</strong>保存至手机相册去打印。</li>
+      </ol>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-modal-primary" id="modalImgBtn">导出当前页为图片</button>
+      <button class="btn-modal-secondary" id="modalCloseBtn">直接调用打印</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script>
@@ -419,7 +451,11 @@
     return themeSvg('none',0);
   }
 
-  function themeBg(id, variant){ return svgData(themeSvg(id,variant)); }
+  // 转换内置SVG为DataURL，确保 html2canvas 渲染不丢失外部/内联 SVG 背景
+  function themeDataUrl(id, variant=0){
+    const svgStr = themeSvg(id, variant);
+    return `url("data:image/svg+xml;utf8,${encodeURIComponent(svgStr)}")`;
+  }
 
   function renderThemePicker(){
     const grid = el('themeGrid');
@@ -432,7 +468,7 @@
         th.style.background='linear-gradient(135deg,#fff1f6,#f4f6ff)';
         th.style.position='relative';
         th.innerHTML='<div style="display:grid;place-items:center;height:100%;font-size:19px;color:#b94e78">＋</div>';
-      }else th.style.backgroundImage=themeBg(t.id, i%4);
+      }else th.style.backgroundImage=themeDataUrl(t.id, i%4);
       const name=document.createElement('div');name.className='theme-name';name.textContent=t.name;
       b.append(th,name);
       b.addEventListener('click',()=>{
@@ -506,11 +542,11 @@
 
   function bgFor(index){
     if(state.theme==='custom'){
-      if(!state.customBgs.length) return {image:themeBg('none',0),custom:false};
+      if(!state.customBgs.length) return {image:themeDataUrl('none',0),custom:false};
       return {image:`url("${state.customBgs[index % state.customBgs.length].data}")`,custom:true};
     }
     const variant=el('themeShuffle').checked ? index%4 : 0;
-    return {image:themeBg(state.theme,variant),custom:false};
+    return {image:themeDataUrl(state.theme,variant),custom:false};
   }
 
   function addText(card,item){
@@ -538,7 +574,6 @@
         d.className='label-info';
         d.style.fontSize=`${infoSize}pt`;
         d.style.color=infoColor;
-        // 辅助信息自动跟随“文字对齐”：只显示班级时居中，班级+学号时整组居中；左/右对齐同理。
         d.style.justifyContent = align==='center' ? 'center' : (align==='right' ? 'flex-end' : 'flex-start');
         d.style.width='100%';
         info.forEach(t=>{const x=document.createElement('span');x.textContent=t;d.appendChild(x)});
@@ -591,8 +626,6 @@
       const sheet=document.createElement('section');sheet.className='sheet';
       const grid=document.createElement('div');grid.className='sheet-grid';
       if(state.preset==='mini') {
-        // 迷你 6×18（30×12mm）：整组 108 张以 A4 页面中心为基准，水平、垂直严格居中。
-        // 使用 grid 自身的 50% 定位 + -50% 回退，避免受固定边距影响。
         grid.style.left='50%';
         grid.style.top='50%';
         grid.style.transform=`translate(calc(-50% + ${ox}mm), calc(-50% + ${oy}mm))`;
@@ -694,7 +727,6 @@
         const ds=new DecompressionStream('deflate-raw');
         data=new Uint8Array(await new Response(new Blob([comp]).stream().pipeThrough(ds)).arrayBuffer());
       }else throw new Error('XLSX 使用了暂不支持的压缩方式');
-      if(usize && data.length!==usize){ /* 某些文件尺寸字段可能不一致，不作为致命错误 */ }
       entries.set(name,data);
       p+=46+nlen+xlen+clen;
     }
@@ -708,8 +740,6 @@
     return doc;
   }
 
-  // XLSX 的 XML 在不同软件（Excel/WPS/LibreOffice/第三方库）中可能写成
-  // <row>、<x:row>、<main:row> 等不同命名空间前缀。统一按 localName 读取，避免误判“没有数据”。
   function xmlAll(root, localName){
     if(!root) return [];
     try{
@@ -846,6 +876,48 @@
     }finally{ el('dataFile').value=''; }
   }
 
+  // 检测是否为移动端或微信/QQ等内置浏览器
+  function isMobileOrInApp(){
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const isMob = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+    const isInApp = /MicroMessenger|QQ|AlipayClient|Weibo/i.test(ua);
+    return isMob || isInApp;
+  }
+
+  // 执行真实打印或唤起弹窗引导
+  function triggerPrintAction(){
+    const fit=layoutFits();
+    if(!fit.ok && !confirm('当前排版超出 A4，打印可能被裁切。仍然继续吗？')) return;
+
+    if(isMobileOrInApp()){
+      el('printModal').classList.add('show');
+    }else{
+      window.print();
+    }
+  }
+
+  // 手机端将第一页转换为图片下载的备用方案
+  async function exportPageAsImage(){
+    const firstSheet = document.querySelector('.sheet');
+    if(!firstSheet){ toast('没有可导出的内容'); return; }
+    toast('正在生成页面图片，请稍候...');
+    el('printModal').classList.remove('show');
+    try{
+      const canvas = await html2canvas(firstSheet, {scale:2, useCORS:true, allowTaint:true});
+      const dataUrl = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = '印啦啦姓名贴排版.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast('图片已生成，长按图片可保存到相册');
+    }catch(err){
+      console.error(err);
+      toast('图片生成失败，请直接使用浏览器打印');
+    }
+  }
+
   window.__nameTagXlsxTest={xlsxToTSV,parseBatch,unzipXlsx,workbookSheetPaths,sheetRows,parseSharedStrings,parseStyles};
 
   function bind(){
@@ -862,62 +934,20 @@
     el('dataFile').addEventListener('change',e=>readDataFile(e.target.files[0]));
     el('exampleBtn').addEventListener('click',fillExample);
     el('resetBtn').addEventListener('click',()=>{if(confirm('恢复默认设置？学生姓名数据也会清空。')) resetAll()});
-    // 打印 / 另存为 PDF
-    // 先立即同步渲染，再调用打印；避免 scheduleRender 的异步延迟导致
-    // WebView / 浏览器打印时拿到空白或旧页面。
-    let printing = false;
+    
+    el('printBtn').addEventListener('click', triggerPrintAction);
 
-    function printDocument(){
-      if(printing) return;
-      const fit=layoutFits();
-      if(!fit.ok && !confirm('当前排版超出 A4，打印可能被裁切。仍然继续吗？')) return;
-
-      printing = true;
-      const btn=el('printBtn');
-      const oldText=btn.textContent;
-      btn.disabled=true;
-      btn.textContent='正在准备打印…';
-
-      try{
-        // 取消尚未执行的异步渲染，直接同步生成最终打印内容
-        clearTimeout(rt);
-        render();
-
-        // 给浏览器 / Android WebView 一个渲染机会，再触发打印
-        requestAnimationFrame(()=>{
-          requestAnimationFrame(()=>{
-            try{
-              if(typeof window.print === 'function'){
-                window.print();
-              }else{
-                toast('当前环境不支持打印，请使用浏览器打开此页面');
-              }
-            }catch(err){
-              console.error('print error:',err);
-              toast('打印调用失败，请使用浏览器打开');
-            }finally{
-              setTimeout(()=>{
-                printing=false;
-                btn.disabled=false;
-                btn.textContent=oldText;
-              },800);
-            }
-          });
-        });
-      }catch(err){
-        console.error('prepare print error:',err);
-        printing=false;
-        btn.disabled=false;
-        btn.textContent=oldText;
-        toast('打印准备失败：'+(err?.message||'未知错误'));
-      }
-    }
-
-    el('printBtn').addEventListener('click',printDocument);
-    window.addEventListener('beforeprint',()=>{
-      clearTimeout(rt);
-      render();
+    el('modalCloseBtn').addEventListener('click', ()=>{
+      el('printModal').classList.remove('show');
+      window.print();
     });
+    el('modalImgBtn').addEventListener('click', exportPageAsImage);
+    el('printModal').classList.remove('show'); // Ensure hidden initially
+    el('printModal').addEventListener('click', (e)=>{
+      if(e.target === el('printModal')) el('printModal').classList.remove('show');
+    });
+
+    window.addEventListener('beforeprint',render);
   }
 
   loadSettings();bind();renderThemePicker();render();
