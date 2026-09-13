@@ -1,957 +1,530 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>印啦啦学生姓名贴生成器</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#f6f7f9">
+<title>礼薄 · 人情账本 v1.7</title>
 <style>
-  :root{
-    --brand:#1f2937;
-    --brand-2:#111827;
-    --accent:#b79a62;
-    --accent-2:#d6c39a;
-    --ink:#20252d;
-    --muted:#7a808b;
-    --line:#e6e2d9;
-    --line-strong:#d8d1c3;
-    --panel:#ffffff;
-    --panel-soft:#fbfaf7;
-    --bg:#f2f0eb;
-    --success:#4f7664;
-    --warning:#a66b2b;
-    --shadow:0 22px 60px rgba(31,36,45,.08),0 2px 8px rgba(31,36,45,.04);
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;min-height:100%;font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
-  body{background:radial-gradient(circle at 12% -10%,rgba(214,195,154,.22),transparent 28%),linear-gradient(180deg,#f7f5f0 0,#efede8 100%)}
-  button,input,select,textarea{font:inherit}
-  button{cursor:pointer}
-  .app{min-height:100vh}
-  .topbar{
-    height:74px;background:linear-gradient(120deg,#171d26 0%,#222a36 55%,#1b222c 100%);color:#fff;
-    display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid rgba(214,195,154,.28);
-    box-shadow:0 12px 35px rgba(17,24,39,.14);position:sticky;top:0;z-index:30
-  }
-  .brand{display:flex;align-items:center;gap:13px}
-  .brand-badge{width:42px;height:42px;border-radius:13px;background:#fe6603;display:grid;place-items:center;border:1px solid rgba(255,255,255,.2);font-size:17px;font-weight:900;letter-spacing:.08em;color:#fff;box-shadow:inset 0 1px rgba(255,255,255,.45),0 7px 18px rgba(0,0,0,.22)}
-  .brand h1{font-size:19px;line-height:1.1;margin:0;font-weight:760;letter-spacing:.04em}
-  .brand p{font-size:11px;margin:5px 0 0;color:#bdc3cc;letter-spacing:.025em}
-  .privacy{font-size:11px;color:#e4dfd2;background:rgba(255,255,255,.065);border:1px solid rgba(214,195,154,.26);padding:8px 12px;border-radius:9px;white-space:nowrap;letter-spacing:.04em}
+:root{
+  --blue:#1683f7; --blue2:#0b78ee; --bg:#f5f6f8; --card:#fff;
+  --text:#202124; --sub:#8b9098; --line:#e9ebef;
+  --red:#ef6268; --green:#22a06b; --shadow:0 8px 26px rgba(20,35,60,.06);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Microsoft YaHei",sans-serif}
+button,input,select,textarea{font:inherit}
+button{border:0;background:none;color:inherit}
+.app{width:100%;max-width:1180px;margin:0 auto;min-height:100vh;padding-bottom:86px}
+.topbar{height:64px;display:flex;align-items:center;justify-content:center;position:relative;background:#fff;border-bottom:1px solid #f0f1f3}
+.topbar h1{font-size:22px;margin:0;font-weight:600;letter-spacing:.5px}
+.top-action{position:absolute;right:20px;color:var(--blue);font-size:15px}
+.page{padding:16px}
+.hidden{display:none!important}
+.hero{background:linear-gradient(135deg,#1788fa,#1678ee);border-radius:22px;padding:22px;color:#fff;box-shadow:0 10px 28px rgba(22,131,247,.18)}
+body.dark .hero{background:linear-gradient(135deg,#173b63,#1b4268);box-shadow:0 10px 28px rgba(0,0,0,.22)}
+body.dark .hero-stat{background:rgba(255,255,255,.10)}
+.hero .eyebrow{font-size:14px;opacity:.85}
+.hero .amount{font-size:36px;font-weight:650;letter-spacing:.5px;margin:7px 0 16px}
+.hero-row{display:flex;gap:10px}
+.hero-stat{flex:1;background:rgba(255,255,255,.14);border-radius:14px;padding:11px 13px}
+.hero-stat span{display:block;font-size:12px;opacity:.8;margin-bottom:4px}
+.hero-stat b{font-size:18px}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin:22px 3px 11px}
+.section-title h2{font-size:16px;margin:0;font-weight:600}
+.section-title button{font-size:13px;color:var(--blue)}
+.card{background:var(--card);border-radius:18px;box-shadow:var(--shadow)}
+.event-list{overflow:hidden}
+.event{padding:15px 16px;display:flex;align-items:center;border-bottom:1px solid var(--line)}
+.event:last-child{border-bottom:0}
+.event-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#edf6ff;color:var(--blue);font-size:20px;margin-right:12px}
+.event-main{flex:1;min-width:0}.event-main b{display:block;font-size:16px;margin-bottom:5px}.event-main small{color:var(--sub);font-size:12px}
+.event-total{text-align:right}.event-total b{display:block;font-size:16px}.event-total small{color:var(--sub);font-size:11px}
+.empty{text-align:center;padding:36px 15px;color:var(--sub);font-size:14px}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.quick button{background:#fff;border-radius:18px;padding:18px 15px;text-align:left;box-shadow:var(--shadow)}
+.quick .ico{font-size:24px;margin-bottom:9px}.quick b{display:block;font-size:16px}.quick small{color:var(--sub);display:block;margin-top:4px}
+.bottom{position:fixed;z-index:30;bottom:0;left:0;right:0;height:78px;background:rgba(255,255,255,.96);border-top:1px solid #e5e6e8;display:flex;justify-content:center}
+.bottom-inner{width:100%;max-width:1180px;display:grid;grid-template-columns:repeat(4,1fr)}
+.nav{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#8c9198;font-size:12px}
+.nav .nicon{font-size:24px;line-height:24px}.nav.active{color:var(--blue)}
+.searchbar{display:flex;gap:10px;align-items:center;margin-bottom:13px}
+.search{height:44px;background:#e9eaec;border-radius:22px;padding:0 17px;display:flex;align-items:center;flex:1}
+.search input{border:0;outline:0;background:transparent;width:100%;font-size:16px}
+.search-btn{color:var(--blue);font-size:15px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);background:#fff;margin:0 -16px 14px;padding:0 10px;border-bottom:1px solid var(--line)}
+.tab{height:51px;position:relative;color:#666;display:grid;place-items:center;font-size:15px}
+.tab.active{color:var(--blue);font-weight:600}.tab.active:after{content:"";position:absolute;bottom:0;width:34px;height:3px;background:var(--blue);border-radius:3px}
+.detail{padding:15px 16px;display:flex;gap:12px;border-bottom:1px solid var(--line)}
+.detail:last-child{border-bottom:0}
+.avatar{width:42px;height:42px;border-radius:13px;background:#f0f6fd;color:var(--blue);display:grid;place-items:center;font-weight:600}
+.detail-main{flex:1;min-width:0}.detail-main b{font-size:16px}.tag{font-size:11px;color:var(--blue);background:#e9f4ff;border-radius:5px;padding:2px 6px;margin-left:5px}
+.detail-main p{margin:7px 0 0;color:#777;font-size:13px;line-height:1.45}.detail-main small{color:#aaa}
+.money{text-align:right}.money b{font-size:20px;color:var(--blue)}.money.negative b{color:var(--red)}.money small{display:block;color:#bbb;margin-top:4px}
+.form-card{padding:17px}.form-row{margin-bottom:15px}.form-row label{display:block;font-size:13px;color:#777;margin-bottom:7px}
+.input,.select,.textarea{width:100%;height:46px;border:1px solid #e2e4e8;border-radius:12px;padding:0 13px;background:#fff;outline:none}
+.textarea{height:86px;padding-top:11px;resize:none}
+.segment{display:grid;grid-template-columns:1fr 1fr;gap:7px;background:#f0f1f3;border-radius:12px;padding:4px}
+.segment.three{grid-template-columns:repeat(3,1fr)}
+.segment button{height:38px;border-radius:9px;color:#777}.segment button.active{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(0,0,0,.07);font-weight:600}
+.primary{width:100%;height:48px;border-radius:14px;background:var(--blue);color:#fff;font-weight:600}
+.secondary{width:100%;height:46px;border-radius:13px;border:1px solid #dfe3e8;color:var(--blue);background:#fff}
+.setting-title{font-size:14px;color:#999;margin:20px 2px 10px}
+.setting-card{overflow:hidden}
+.setting-row{min-height:56px;padding:12px 16px;display:flex;align-items:center;border-bottom:1px solid var(--line)}
+.setting-row:last-child{border-bottom:0}
+.setting-icon{width:30px;font-size:20px;margin-right:10px}.setting-main{flex:1}.setting-main b{font-size:15px;font-weight:500}.setting-main small{display:block;color:#aaa;font-size:11px;margin-top:3px}
+.setting-row .arrow{color:#aaa}
+.danger{color:var(--red)!important}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#fff;width:100%;max-width:760px;border-radius:24px 24px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.sheet-head h3{margin:0;font-size:18px}.close{font-size:25px;color:#888}
+.toast{position:fixed;z-index:200;left:50%;bottom:105px;transform:translateX(-50%);background:rgba(35,35,38,.92);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;max-width:85%;text-align:center}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat-box{padding:17px;border-radius:17px;background:#fff;box-shadow:var(--shadow)}.stat-box small{color:#999}.stat-box b{display:block;font-size:24px;margin-top:7px}.stat-box.in b{color:var(--blue)}.stat-box.out b{color:var(--red)}
+.notice{font-size:12px;color:#888;background:#f7f8fa;padding:11px 12px;border-radius:10px;line-height:1.6;margin-top:12px}
 
-  .workspace{display:grid;grid-template-columns:410px minmax(760px,1fr);gap:18px;padding:18px;align-items:start;max-width:1900px;margin:0 auto}
-  .sidebar{background:rgba(255,255,255,.96);border:1px solid rgba(216,209,195,.9);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;position:sticky;top:92px;max-height:calc(100vh - 110px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:#cfc7b7 transparent}
-  .sidebar::-webkit-scrollbar{width:7px}.sidebar::-webkit-scrollbar-thumb{background:#cfc7b7;border-radius:99px}
-  .section{padding:18px 18px 17px;border-bottom:1px solid #eeebe4}
-  .section:last-child{border-bottom:none}
-  .section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
-  .section-title h2{font-size:14px;margin:0;font-weight:790;color:#222831;display:flex;align-items:center;gap:9px;letter-spacing:.015em}
-  .step{display:inline-grid;place-items:center;min-width:28px;height:22px;padding:0 6px;border-radius:7px;background:#f1ece1;border:1px solid #ded2ba;color:#8a6d3c;font-size:10px;font-weight:850;letter-spacing:.08em}
-  .tip{font-size:10.5px;color:#92969d}
-  .seg{display:grid;grid-template-columns:1fr 1fr;background:#f1f0ed;padding:4px;border-radius:12px;gap:4px;border:1px solid #e8e4dc}
-  .seg button{border:0;background:transparent;color:#7a7e85;padding:10px 8px;border-radius:9px;font-size:12.5px;font-weight:700;transition:.18s ease}
-  .seg button:hover{color:#313842}
-  .seg button.active{background:#fff;color:#1e2530;box-shadow:0 4px 13px rgba(31,36,45,.09);outline:1px solid rgba(183,154,98,.18)}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
-  label.field{display:block;font-size:11.5px;color:#555b64}
-  label.field>span{display:block;margin-bottom:6px;font-weight:680;color:#4b515b}
-  input[type="text"],input[type="number"],select,textarea{
-    width:100%;border:1px solid #dfdcd4;border-radius:10px;background:#fff;color:#222831;outline:none;transition:border-color .16s,box-shadow .16s,background .16s;
-  }
-  input[type="text"],input[type="number"],select{height:40px;padding:0 11px}
-  textarea{min-height:132px;padding:11px 12px;resize:vertical;line-height:1.58;font-family:Consolas,"Microsoft YaHei",sans-serif;background:#fff}
-  input:hover,select:hover,textarea:hover{border-color:#cfc9bd}
-  input:focus,select:focus,textarea:focus{border-color:#9f8655;box-shadow:0 0 0 3px rgba(183,154,98,.12);background:#fff}
-  input::placeholder,textarea::placeholder{color:#b0b3b9}
-  .help{font-size:10.5px;color:#8a8f97;line-height:1.65;margin-top:8px}
-  .inline{display:flex;align-items:center;gap:8px}.inline>*{min-width:0}
-  .checkrow{display:flex;align-items:center;flex-wrap:wrap;gap:8px 13px;font-size:11.5px;color:#565d66}
-  .checkrow label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
-  input[type="checkbox"],input[type="radio"]{accent-color:#80683d}
-  .range-row{display:grid;grid-template-columns:1fr 62px;gap:8px;align-items:center}
-  input[type="range"]{width:100%;accent-color:#80683d}
-  .mini-num{height:35px!important;text-align:center;padding:0 4px!important}
 
-  .theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-  .theme-card{border:1px solid #e4e0d8;background:#fff;border-radius:11px;padding:5px;transition:.18s ease;position:relative;box-shadow:0 1px 2px rgba(31,36,45,.02)}
-  .theme-card:hover{transform:translateY(-2px);border-color:#c8b58e;box-shadow:0 8px 18px rgba(31,36,45,.07)}
-  .theme-card.active{border-color:#a88a52;box-shadow:0 0 0 2px rgba(183,154,98,.13),0 8px 18px rgba(31,36,45,.06)}
-  .theme-thumb{aspect-ratio:1.72/1;border-radius:8px;background-size:cover;background-position:center;border:1px solid rgba(0,0,0,.045);overflow:hidden}
-  .theme-name{font-size:9.8px;text-align:center;margin-top:6px;color:#636972;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .theme-card.active::after{content:"✓";position:absolute;right:4px;top:4px;width:18px;height:18px;border-radius:7px;background:#232a34;color:#dfca9d;display:grid;place-items:center;font-size:10px;border:1px solid rgba(255,255,255,.8);box-shadow:0 3px 9px rgba(0,0,0,.16)}
+/* 右上角日夜模式 */
+.theme-toggle{position:absolute;right:16px;display:flex;align-items:center;background:#eef0f3;border-radius:18px;padding:3px;gap:2px}
+.theme-toggle button{height:30px;min-width:43px;padding:0 9px;border-radius:14px;color:#777;font-size:12px}
+.theme-toggle button.active{background:#fff;color:var(--blue);box-shadow:0 2px 7px rgba(0,0,0,.10);font-weight:600}
+.event-actions{display:flex;gap:6px;margin-left:9px}
+.event-actions button{width:31px;height:31px;border-radius:9px;background:#f5f6f8;color:#777;font-size:14px}
+.event-actions .event-delete{color:var(--red)}
+.dark .theme-toggle{background:#25292e}.dark .theme-toggle button.active{background:#353a41;color:#fff}.dark .event-actions button{background:#272b30;color:#aaa}
+body.dark{
+  --bg:#111315; --card:#1b1e22; --text:#f1f3f5; --sub:#9aa1aa; --line:#30343a;
+  --shadow:0 8px 26px rgba(0,0,0,.22);
+}
+body.dark .topbar,.dark .bottom{background:#17191c;border-color:#2b2f34}
+body.dark .search{background:#25292e}
+body.dark .input,.dark .select,.dark .textarea{background:#202328;border-color:#353a41;color:#f1f3f5}
+body.dark .segment{background:#272b30}
+body.dark .segment button.active{background:#1b1e22}
+body.dark .setting-row,.dark .detail,.dark .event{border-color:#30343a}
+body.dark .notice{background:#202328}
+body.dark .modal .sheet{background:#17191c}
+body.dark .stat-box,.dark .quick button{background:#1b1e22}
+body.dark .tab{color:#aab0b7;background:#17191c}
+.theme-pills{display:flex;gap:6px;background:#eef0f2;border-radius:10px;padding:3px}
+.theme-pills button{font-size:12px;padding:6px 9px;border-radius:8px;color:#777}
+.theme-pills button.active{background:#fff;color:var(--blue);box-shadow:0 1px 5px rgba(0,0,0,.08)}
+body.dark .theme-pills{background:#25292e}
+body.dark .theme-pills button.active{background:#1b1e22}
 
-  .upload-box{border:1px dashed #cec5b4;background:linear-gradient(180deg,#fbfaf7,#f7f4ee);border-radius:12px;padding:11px;margin-top:11px}
-  .filebtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 11px;border-radius:9px;border:1px solid #d7d1c5;background:#fff;color:#333b46;font-weight:720;font-size:11.5px;transition:.16s ease}
-  .filebtn:hover{border-color:#ad9361;background:#fffdf8;color:#6f572d}
-  .file-list{margin-top:8px;font-size:10.5px;color:#848a93;max-height:50px;overflow:auto}
-  .hidden{display:none!important}
+@media(min-width:761px){body{background:#eceff3}.app{background:var(--bg);box-shadow:0 0 40px rgba(0,0,0,.05)}}
 
-  .preset-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-  .preset{border:1px solid #e2ded6;background:#fff;border-radius:10px;padding:9px 6px;font-size:10.5px;color:#737981;text-align:center;transition:.16s ease}
-  .preset b{display:block;color:#303741;font-size:11.5px;margin-bottom:3px}
-  .preset:hover{border-color:#c8b68f;background:#fffdf9}
-  .preset.active{border-color:#ad9160;background:#f7f2e8;color:#80683d;box-shadow:inset 0 0 0 1px rgba(183,154,98,.08)}
-  .custom-layout{margin-top:11px;padding:11px;background:#f7f6f3;border:1px solid #ece8e0;border-radius:12px}
-  .custom-layout .grid3{margin-top:8px}
-
-  .actionbar{padding:14px 17px 17px;display:grid;grid-template-columns:1fr 1fr;gap:9px;position:sticky;bottom:0;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid #e9e5dd;box-shadow:0 -10px 24px rgba(31,36,45,.035)}
-  .btn{height:43px;border-radius:10px;border:1px solid transparent;font-weight:760;font-size:12px;transition:.16s ease}
-  .btn:hover{transform:translateY(-1px)}
-  .btn.primary{grid-column:1/-1;background:linear-gradient(135deg,#252d38,#151b24);color:#f4ead5;border-color:#151b24;box-shadow:0 9px 20px rgba(20,27,36,.18)}
-  .btn.primary:hover{box-shadow:0 12px 25px rgba(20,27,36,.24)}
-  .btn.light{background:#fff;border-color:#ddd8cf;color:#4b535e}
-  .btn.warn{background:#faf7f0;border-color:#e7d9bd;color:#8b6736}
-
-  .main{min-width:0}
-  .preview-toolbar{background:rgba(255,255,255,.93);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 12px 32px rgba(31,36,45,.06);position:sticky;top:92px;z-index:20;backdrop-filter:blur(10px)}
-  .stats{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .pill{font-size:11px;color:#747a83;background:#f6f4ef;border:1px solid #e7e1d6;padding:7px 10px;border-radius:10px;min-width:84px;text-align:center}
-  .pill strong{color:#232a34;font-size:12.5px;margin-left:2px}
-  .warn-text{font-size:11px;color:#9b6227;font-weight:700}
-  .print-note{font-size:10.5px;color:#81868e;text-align:right;line-height:1.5}
-  .preview-scroll{margin-top:14px;background:linear-gradient(145deg,#e6e3dd,#dddad4);border-radius:17px;padding:26px;min-height:calc(100vh - 190px);overflow:auto;border:1px solid #d8d3ca;box-shadow:inset 0 1px 2px rgba(255,255,255,.55)}
-  .sheet{width:210mm;height:297mm;background:#fff;margin:0 auto 26px;position:relative;overflow:hidden;box-shadow:0 24px 55px rgba(24,30,40,.17),0 3px 8px rgba(24,30,40,.08);page-break-after:always;break-after:page;print-color-adjust:exact;-webkit-print-color-adjust:exact}
-  .sheet:last-child{page-break-after:auto;break-after:auto}
-  .sheet-grid{position:absolute;display:grid;align-content:start;justify-content:start}
-  .label-card{position:relative;overflow:hidden;background:#fff;display:block;isolation:isolate;print-color-adjust:exact;-webkit-print-color-adjust:exact}
-  .label-bg{position:absolute;inset:0;background-repeat:no-repeat;background-position:center;background-size:cover;z-index:-3}
-  .label-wash{position:absolute;inset:0;background:#fff;z-index:-2;pointer-events:none}
-  .label-cut{position:absolute;inset:0;z-index:9;pointer-events:none;border:1px dashed rgba(45,51,59,.32)}
-  .label-content{position:absolute;left:7%;right:7%;top:50%;transform:translateY(-50%);z-index:3;line-height:1.16;overflow:hidden}
-  .label-name{font-weight:900;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .label-info{margin-top:4px;display:flex;gap:7px;flex-wrap:wrap;align-items:center;opacity:.93;font-weight:650}
-  .label-info span{white-space:nowrap}.label-phone{margin-top:3px;white-space:nowrap;opacity:.9}
-  .handwrite{display:grid;gap:6px;width:100%;font-weight:700}.handline{display:flex;align-items:end;gap:4px;white-space:nowrap}.handline i{display:block;border-bottom:1px solid currentColor;flex:1;height:.8em;opacity:.65}.empty-cell{background:transparent}
-
-  /* 移动端友好提示弹窗遮罩 */
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;display:grid;place-items:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s ease}
-  .modal-overlay.show{opacity:1;pointer-events:auto}
-  .modal-card{background:#fff;border-radius:18px;max-width:400px;width:100%;padding:24px;box-shadow:0 25px 50px rgba(0,0,0,.25);transform:translateY(15px);transition:transform .25s ease}
-  .modal-overlay.show .modal-card{transform:translateY(0)}
-  .modal-card h3{margin:0 0 10px;font-size:17px;color:#1e2530;font-weight:800}
-  .modal-card p{margin:0 0 16px;font-size:12.5px;color:#555a64;line-height:1.6}
-  .modal-steps{background:#f8f7f4;border-radius:12px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:#444a54;border:1px solid #eae5dc}
-  .modal-steps ol{margin:0;padding-left:18px;line-height:1.7}
-  .modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .modal-btns button{height:42px;border-radius:10px;font-weight:750;font-size:12px}
-  .btn-modal-primary{background:#252d38;color:#f4ead5;border:0}
-  .btn-modal-secondary{background:#f1ece1;color:#555b64;border:1px solid #ded2ba}
-
-  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#1d232c;color:#f6f0e4;padding:10px 15px;border-radius:10px;font-size:11.5px;opacity:0;pointer-events:none;transition:.2s;z-index:100;box-shadow:0 12px 30px rgba(0,0,0,.22);border:1px solid rgba(214,195,154,.22)}
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-  .print-only{display:none}
-  @media(max-width:1260px){.workspace{grid-template-columns:380px minmax(680px,1fr)}}
-  @media(max-width:900px){
-    .topbar{height:68px;padding:0 16px}.brand-badge{width:38px;height:38px}.brand h1{font-size:17px}.workspace{display:block;padding:10px}.sidebar{position:relative;top:0;max-height:none;margin-bottom:12px}.preview-toolbar{top:78px}.privacy{display:none}.preview-scroll{padding:10px}.section{padding:16px}.workspace{max-width:none}
-  }
-  @media print{
-    @page{size:A4 portrait;margin:0}
-    html,body{margin:0!important;padding:0!important;background:#fff!important}
-    .topbar,.sidebar,.preview-toolbar{display:none!important}
-    .workspace,.main,.preview-scroll,.print-area{display:block!important;margin:0!important;padding:0!important;background:#fff!important;border:0!important;box-shadow:none!important;overflow:visible!important}
-    .sheet{margin:0!important;box-shadow:none!important;width:210mm!important;height:297mm!important;page-break-after:always!important;break-after:page!important}
-    .sheet:last-child{page-break-after:auto!important;break-after:auto!important}
-  }
+.event-list.collapsed{display:none}
+.event-head-toggle{display:flex;align-items:center;gap:8px;cursor:pointer}
+.event-head-toggle .chevron{font-size:14px;color:#999;transition:transform .2s}
+.event-head-toggle.open .chevron{transform:rotate(180deg)}
+@media(min-width:761px){
+  .app{max-width:1180px}
+  .page{padding:26px 34px}
+  .hero{padding:28px 32px}
+  .hero .amount{font-size:42px}
+  .quick{grid-template-columns:1fr 1fr;gap:18px}
+  .event-list{display:grid;grid-template-columns:1fr 1fr}
+  .event{min-width:0;border-right:1px solid var(--line)}
+  .event:nth-child(2n){border-right:0}
+  .event:nth-last-child(-n+2){border-bottom:0}
+  .section-title{margin-top:28px}
+}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="app">
-  <header class="topbar">
-    <div class="brand">
-      <div><span><img src="icon.png" width="42" height="42" alt="" onerror="this.style.display='none'"/></span></div>
-      <div>
-        <h1>印啦啦学生姓名贴生成器</h1>
-        <p>NAME LABEL STUDIO · 批量生成 · A4 精准打印</p>
+  <div class="topbar"><h1 id="pageTitle">礼薄 · 人情账本</h1><div class="theme-toggle" aria-label="显示模式"><button id="topDayBtn" onclick="setTheme('day')">☀ 白天</button><button id="topNightBtn" onclick="setTheme('night')">☾ 夜间</button></div></div>
+
+  <main id="homePage" class="page">
+    <div class="hero">
+      <div class="eyebrow">人情账本 · 本机数据</div>
+      <div class="amount" id="balance">¥0</div>
+      <div class="hero-row">
+        <div class="hero-stat"><span>累计收礼</span><b id="totalIn">¥0</b></div>
+        <div class="hero-stat"><span>累计随礼</span><b id="totalOut">¥0</b></div>
       </div>
     </div>
-    <div class="privacy">LOCAL ONLY · 姓名与图片仅在本机处理</div>
-  </header>
 
-  <div class="workspace">
-    <aside class="sidebar">
-      <section class="section">
-        <div class="section-title"><h2><span class="step">01</span>姓名数据</h2><span class="tip">家长 / 老师两种场景</span></div>
-        <div class="seg" id="modeSeg">
-          <button data-mode="single" class="active">单人铺满</button>
-          <button data-mode="batch">批量名单</button>
-        </div>
+    <!-- 快速记一笔放到我的事项之前 -->
+    <div class="section-title"><h2>快速记一笔</h2></div>
+    <div class="quick">
+      <button onclick="openRecord('in')"><div class="ico">🎁</div><b>我要收礼</b><small>记录别人给我的礼金</small></button>
+      <button onclick="openRecord('out')"><div class="ico">🧧</div><b>我要随礼</b><small>记录我送出的礼金</small></button>
+    </div>
 
-        <div id="singlePanel" style="margin-top:12px">
-          <div class="grid2">
-            <label class="field"><span>姓名</span><input id="singleName" type="text" value="王小明" placeholder="如：王小明"></label>
-            <label class="field"><span>班级</span><input id="singleClass" type="text" value="一年级 3 班" placeholder="可留空"></label>
-            <label class="field"><span>学号</span><input id="singleNo" type="text" value="08" placeholder="可留空"></label>
-            <label class="field"><span>联系电话</span><input id="singlePhone" type="text" placeholder="可留空"></label>
-          </div>
-          <div class="grid2" style="margin-top:9px">
-            <label class="field"><span>生成张数</span><input id="singleCount" type="number" min="1" max="999" value="40"></label>
-            <label class="field"><span>快速数量</span>
-              <select id="countQuick"><option value="40">1页（40张）</option><option value="80">2页（80张）</option><option value="120">3页（120张）</option><option value="custom">自定义</option></select>
-            </label>
-          </div>
-        </div>
+    <div class="section-title">
+      <button class="event-head-toggle" id="eventToggle" onclick="toggleEvents()"><h2>我的事项</h2><span class="chevron">▼</span></button>
+      <button onclick="openEventModal()">＋ 新建事项</button>
+    </div>
+    <div class="card event-list collapsed" id="eventList"></div>
+  </main>
+  <main id="detailPage" class="page hidden">
+    <div class="searchbar"><div class="search">🔎 <input id="searchInput" placeholder="搜索姓名/备注" oninput="renderDetails()"></div><button class="search-btn" onclick="clearSearch()">筛选</button></div>
+    <div class="tabs">
+      <button class="tab active" data-tab="all" onclick="setTab('all')">全部</button>
+      <button class="tab" data-tab="in" onclick="setTab('in')">收礼</button>
+      <button class="tab" data-tab="out" onclick="setTab('out')">随礼</button>
+    </div>
+    <div class="card" id="detailList"></div>
+  </main>
 
-        <div id="batchPanel" class="hidden" style="margin-top:12px">
-          <textarea id="batchText" placeholder="Excel 直接复制三列到这里：&#10;一年级3班&#9;01&#9;张小雨&#10;一年级3班&#9;02&#9;李乐乐&#10;一年级3班&#9;03&#9;陈子安"></textarea>
-          <div class="grid2" style="margin-top:8px">
-            <label class="field"><span>每位学生重复</span><input id="batchRepeat" type="number" min="1" max="100" value="2"></label>
-            <label class="field"><span>Excel / TXT / CSV 导入</span><label class="filebtn" style="height:38px;justify-content:center"><input id="dataFile" type="file" accept=".xlsx,.txt,.csv" hidden>选择文件</label></label>
-          </div>
-          <div class="help">支持：XLSX / TXT / CSV 直接导入，也可从 Excel 复制粘贴。字段可为：仅姓名；班级+姓名；班级+学号+姓名；第4列可填写“单独数量”。XLSX 默认读取第一个有数据的工作表；支持 Excel / WPS 常见文件结构。</div>
-        </div>
-      </section>
+  <main id="settingsPage" class="page">
+    <div class="setting-title">数据管理</div>
+    <div class="card setting-card">
+      <button class="setting-row" onclick="createFullBackup()"><div class="setting-icon">💾</div><div class="setting-main"><b>一键完整备份</b><small>备份全部事项、礼金记录及显示设置，可用于换机恢复</small></div><div class="arrow">›</div></button>
+      <button class="setting-row" onclick="restoreFullBackup()"><div class="setting-icon">♻️</div><div class="setting-main"><b>从完整备份恢复</b><small>选择以前导出的礼薄备份文件恢复全部数据</small></div><div class="arrow">›</div></button>
+      <button class="setting-row" onclick="exportExcel()"><div class="setting-icon">📊</div><div class="setting-main"><b>导出 Excel 文件</b><small>导出记录及填写说明，可直接用 Excel 打开</small></div><div class="arrow">›</div></button>
+      <button class="setting-row" onclick="importExcel()"><div class="setting-icon">📥</div><div class="setting-main"><b>Excel 批量导入</b><small>按规定列填写后，一次导入多条礼薄记录</small></div><div class="arrow">›</div></button>
+      <button class="setting-row" onclick="downloadExcelTemplate()"><div class="setting-icon">📋</div><div class="setting-main"><b>下载 Excel 空白模板</b><small>含「填写说明」工作表，减少导入错误</small></div><div class="arrow">›</div></button>
+      <button class="setting-row" onclick="exportCSV()"><div class="setting-icon">📄</div><div class="setting-main"><b>导出 CSV 文件</b><small>兼容没有 Excel 的设备</small></div><div class="arrow">›</div></button>
+      <button class="setting-row" onclick="importCSV()"><div class="setting-icon">📥</div><div class="setting-main"><b>从 CSV 导入记录</b><small>兼容旧数据</small></div><div class="arrow">›</div></button>
+      <button class="setting-row" onclick="clearAll()"><div class="setting-icon">🗑️</div><div class="setting-main danger"><b>清空所有数据</b><small>此操作不可恢复，请谨慎操作</small></div><div class="arrow">›</div></button>
+    </div>
 
-      <section class="section">
-        <div class="section-title"><h2><span class="step">02</span>文字与样式</h2><span class="tip">也支持打印后手写</span></div>
-        <label class="field"><span>填写方式</span>
-          <select id="contentMode">
-            <option value="digital">电脑直接填写姓名</option>
-            <option value="handwrite">空白手写模板</option>
-          </select>
-        </label>
-        <div class="checkrow" style="margin-top:10px" id="displayChecks">
-          <label><input id="showClass" type="checkbox" checked>显示班级</label>
-          <label><input id="showNo" type="checkbox" checked>显示学号</label>
-          <label><input id="showPhone" type="checkbox">显示电话</label>
-        </div>
-        <div class="grid2" style="margin-top:10px">
-          <label class="field"><span>字体风格</span><select id="fontFamily"><option value="rounded">圆润黑体</option><option value="hei">简洁黑体</option><option value="kai">楷体</option><option value="song">宋体</option></select></label>
-          <label class="field"><span>文字对齐</span><select id="textAlign"><option value="center">居中</option><option value="left">靠左</option><option value="right">靠右</option></select></label>
-        </div>
-        <div style="margin-top:10px">
-          <label class="field"><span>姓名字号（pt）</span><div class="range-row"><input id="nameSize" type="range" min="11" max="28" step="1" value="18"><input id="nameSizeNum" class="mini-num" type="number" min="11" max="28" value="18"></div></label>
-          <label class="field" style="margin-top:8px"><span>辅助信息字号（pt）</span><div class="range-row"><input id="infoSize" type="range" min="6" max="13" step="1" value="8"><input id="infoSizeNum" class="mini-num" type="number" min="6" max="13" value="8"></div></label>
-          <label class="field" style="margin-top:8px"><span>文字上下位置（%）</span><div class="range-row"><input id="textY" type="range" min="25" max="75" step="1" value="50"><input id="textYNum" class="mini-num" type="number" min="25" max="75" value="50"></div></label>
-        </div>
-        <div class="grid2" style="margin-top:10px">
-          <label class="field"><span>姓名颜色</span><input id="nameColor" type="color" value="#1f2937" style="height:38px;padding:4px"></label>
-          <label class="field"><span>辅助文字颜色</span><input id="infoColor" type="color" value="#4b5563" style="height:38px;padding:4px"></label>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-title"><h2><span class="step">03</span>背景与模板</h2><span class="tip">内置 / 无背景 / 自定义图片</span></div>
-        <div id="themeGrid" class="theme-grid"></div>
-        <div class="upload-box">
-          <div class="inline" style="justify-content:space-between">
-            <label class="filebtn"><input id="bgFiles" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden>上传背景图</label>
-            <button id="clearBg" class="filebtn" type="button" style="color:#666;border-color:#ddd">清空图片</button>
-          </div>
-          <div id="fileList" class="file-list">可一次选择多张，生成时自动循环使用。</div>
-          <div class="grid2" style="margin-top:9px">
-            <label class="field"><span>图片适配</span><select id="bgFit"><option value="cover">铺满裁切</option><option value="contain">完整显示</option><option value="100% 100%">拉伸铺满</option></select></label>
-            <label class="field"><span>背景变淡</span><select id="bgFade"><option value="0">不变淡</option><option value="0.15">15%</option><option value="0.3" selected>30%</option><option value="0.45">45%</option><option value="0.6">60%</option><option value="0.75">75%</option></select></label>
-          </div>
-          <div class="grid2" style="margin-top:8px">
-            <label class="field"><span>水平位置</span><input id="bgPosX" type="number" min="0" max="100" value="50"></label>
-            <label class="field"><span>垂直位置</span><input id="bgPosY" type="number" min="0" max="100" value="50"></label>
-          </div>
-        </div>
-        <div class="checkrow" style="margin-top:10px">
-          <label><input id="themeShuffle" type="checkbox" checked>同主题随机小变化</label>
-          <label><input id="showCut" type="checkbox" checked>显示裁切线</label>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-title"><h2><span class="step">04</span>打印排版</h2><span class="tip">物理尺寸按 mm</span></div>
-        <div class="preset-row" id="presetRow">
-          <button class="preset active" data-preset="medium"><b>中号 4×10</b>43×25mm</button>
-          <button class="preset" data-preset="large"><b>大号 3×8</b>58×30mm</button>
-          <button class="preset" data-preset="small"><b>小号 5×12</b>34×20mm</button>
-          <button class="preset" data-preset="mini"><b>迷你 6×18</b>30×12mm</button>
-        </div>
-        <div class="custom-layout">
-          <div class="grid3">
-            <label class="field"><span>列数</span><input id="cols" type="number" min="1" max="10" value="4"></label>
-            <label class="field"><span>行数</span><input id="rows" type="number" min="1" max="30" value="10"></label>
-            <label class="field"><span>左边距 mm</span><input id="marginLeft" type="number" min="0" max="50" step="0.5" value="13"></label>
-          </div>
-          <div class="grid3">
-            <label class="field"><span>宽 mm</span><input id="labelW" type="number" min="10" max="100" step="0.5" value="43"></label>
-            <label class="field"><span>高 mm</span><input id="labelH" type="number" min="8" max="80" step="0.5" value="25"></label>
-            <label class="field"><span>上边距 mm</span><input id="marginTop" type="number" min="0" max="50" step="0.5" value="10"></label>
-          </div>
-          <div class="grid3">
-            <label class="field"><span>横间距 mm</span><input id="gapX" type="number" min="0" max="20" step="0.5" value="4"></label>
-            <label class="field"><span>纵间距 mm</span><input id="gapY" type="number" min="0" max="20" step="0.5" value="3"></label>
-            <label class="field"><span>圆角 mm</span><input id="radius" type="number" min="0" max="8" step="0.5" value="2"></label>
-          </div>
-          <div class="grid2">
-            <label class="field"><span>打印横向微调 mm</span><input id="offsetX" type="number" min="-8" max="8" step="0.2" value="0"></label>
-            <label class="field"><span>打印纵向微调 mm</span><input id="offsetY" type="number" min="-8" max="8" step="0.2" value="0"></label>
-          </div>
-          <div class="help">预设标签会以 A4 页面中心为基准自动居中；“横向/纵向微调”用于打印机校准。自定义排版时可手动调整边距。</div>
-        </div>
-      </section>
-
-      <div class="actionbar">
-        <button class="btn light" id="exampleBtn">填入示例</button>
-        <button class="btn warn" id="resetBtn">恢复默认</button>
-        <button class="btn primary" id="printBtn">打印 / 另存为 PDF</button>
+    <div class="setting-title">Excel 批量导入注意事项</div>
+    <div class="card setting-card">
+      <div class="notice" style="margin:0;border-radius:0">
+        <b>必须使用以下 9 列：</b><br>
+        ① 日期　② 姓名　③ 类型　④ 内容　⑤ 礼金金额　⑥ 支付方式　⑦ 礼品　⑧ 事项　⑨ 备注<br><br>
+        <b>填写规则：</b><br>
+        · 类型只能填写「收礼」或「随礼」。<br>
+        · 内容只能填写「礼金」「礼品」「礼金+礼品」。<br>
+        · 礼金金额只填写数字，例如 <b>500</b>，没有礼金填 0。<br>
+        · 支付方式只能填写「现金」「微信」「支付宝」，礼品可留空。<br>
+        · 日期建议填写 <b>2026-09-13</b> 格式。<br>
+        · 事项必须填写，例如「结婚」「生子」「寿宴」「丧事」「乔迁」「升学」。<br>
+        · 姓名不能为空；备注可以留空。<br>
+        · 第一行必须是表头，不要删除或合并单元格。<br>
+        · 批量导入前建议先导出一份 Excel 备份。<br>
+        · 每一行代表一笔记录；导入不会自动覆盖已有记录。
+        · 同一个人同时送礼金和礼品时，内容填写「礼金+礼品」。
       </div>
-    </aside>
+    </div>
 
-    <main class="main">
-      <div class="preview-toolbar">
-        <div class="stats">
-          <span class="pill">标签 <strong id="statLabels">40</strong> 张</span>
-          <span class="pill">每页 <strong id="statPerPage">40</strong> 张</span>
-          <span class="pill">共 <strong id="statPages">1</strong> 页</span>
-          <span id="layoutWarn" class="warn-text"></span>
-        </div>
-        <div class="print-note">打印建议：A4 / 纵向 / 缩放 100% 或“实际大小”<br>关闭“页眉和页脚”，背景图形需开启打印</div>
-      </div>
-      <div class="preview-scroll">
-        <div id="printArea" class="print-area"></div>
-      </div>
-    </main>
-  </div>
+    <div class="setting-title">关于应用</div>
+    <div class="card setting-card">
+      <div class="setting-row"><div class="setting-icon">📖</div><div class="setting-main"><b>礼薄 · 人情账本</b><small>离线优先，数据由你自己掌握</small></div><div class="arrow">v1.7</div></div>
+    </div>
+    <div class="setting-title">数据存储与换机</div>
+    <div class="card setting-card"><div class="notice" style="margin:0;border-radius:0">
+      <b>本机存档：</b>礼薄记录默认保存在当前设备、当前浏览器的本地存储（LocalStorage）中。右上角可直接切换白天/夜间模式。关闭网页不会自动删除，但清除浏览器数据、卸载 App 或更换设备后，本机数据不会跟着过去。<br><br>
+      <b>换手机 / 电脑：</b>不同设备之间不会自动同步，请通过「导出 Excel」把数据保存到电脑、U盘或其他云盘，再在新设备使用「Excel 批量导入」恢复。<br><br>
+      <b>会不会丢：</b>本机数据保存在当前浏览器本地存储中。清除浏览器网站数据、卸载 App 或更换设备都可能导致本机数据无法直接找回。重要数据建议定期导出 Excel，并保留至少一份外部备份。
+    </div></div>
+    <div class="notice">隐私说明：礼薄记录默认只保存在当前设备的浏览器本地存储中。如需跨设备使用，请使用 Excel 导出/导入进行数据迁移。</div>
+  </main>
+  <nav class="bottom"><div class="bottom-inner">
+    <button class="nav active" data-page="home" onclick="switchPage('home')"><span class="nicon">⌂</span><span>首页</span></button>
+    <button class="nav" data-page="record" onclick="openRecord()"><span class="nicon">📝</span><span>记账</span></button>
+    <button class="nav" data-page="detail" onclick="switchPage('detail')"><span class="nicon">📒</span><span>明细</span></button>
+    <button class="nav" data-page="settings" onclick="switchPage('settings')"><span class="nicon">⚙</span><span>设置</span></button>
+  </div></nav>
 </div>
 
-<!-- 移动端增强引导及图片下载备用弹窗 -->
-<div id="printModal" class="modal-overlay">
-  <div class="modal-card">
-    <h3>📱 移动端打印指引</h3>
-    <p>检测到您当前可能处于手机浏览器或微信/QQ内置环境，直接调用系统打印可能无响应。</p>
-    <div class="modal-steps">
-      <ol>
-        <li>建议点击右上角 <strong>...</strong> 或 <strong>safari分享图标</strong>。</li>
-        <li>选择 <strong>“在浏览器中打开”</strong>（Safari 或 Chrome）。</li>
-        <li>如果当前浏览器支持，也可以直接点击下方<strong>“导出当前页为长图”</strong>保存至手机相册去打印。</li>
-      </ol>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-modal-primary" id="modalImgBtn">导出当前页为图片</button>
-      <button class="btn-modal-secondary" id="modalCloseBtn">直接调用打印</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast" class="toast"></div>
+<div id="modalRoot"></div>
+<input id="csvFile" type="file" accept=".csv,text/csv" class="hidden" onchange="handleCSV(event)">
+<input id="backupFile" type="file" accept=".giftbook,.json,application/json" class="hidden" onchange="handleFullBackup(event)">
+<input id="excelFile" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" class="hidden" onchange="handleExcel(event)">
 
 <script>
-(() => {
-  'use strict';
+const KEY='giftbook_data_v1';
+let state=JSON.parse(localStorage.getItem(KEY)||'null')||{events:[],records:[]};
+let currentTab='all', currentEvent='all';
+const SYSTEM_EVENTS=[['default','结婚'],['system-birth','生子'],['system-birthday','寿宴'],['system-funeral','丧事'],['system-move','乔迁'],['system-study','升学']];
+let eventsExpanded=false;
+function normalizeSystemEvents(){
+  if(!Array.isArray(state.events))state.events=[];
+  const oldDefault=state.events.find(e=>e.id==='default');
+  if(oldDefault)oldDefault.name='结婚';
+  SYSTEM_EVENTS.forEach(([id,name])=>{
+    let e=state.events.find(x=>x.id===id);
+    if(!e){ e={id,name,date:'',records:[],system:true}; state.events.push(e); }
+    else { e.name=name; e.system=true; }
+  });
+  state.events.forEach(e=>{if(SYSTEM_EVENTS.some(x=>x[0]===e.id))e.system=true});
+  state.records.forEach(r=>{const e=state.events.find(x=>x.id===r.eventId);if(e)r.eventName=e.name});
+  localStorage.setItem(KEY,JSON.stringify(state));
+}
+normalizeSystemEvents();
+function toggleEvents(){eventsExpanded=!eventsExpanded;document.getElementById('eventList').classList.toggle('collapsed',!eventsExpanded);document.getElementById('eventToggle').classList.toggle('open',eventsExpanded)}
 
-  const $ = s => document.querySelector(s);
-  const $$ = s => [...document.querySelectorAll(s)];
-  const el = id => document.getElementById(id);
+const DEFAULT_EVENTS=['结婚','生子','寿宴','丧事','乔迁','升学'];
+function ensureDefaultEvents(){
+  if(!Array.isArray(state.events)) state.events=[];
+  // 旧版默认事项统一改为“结婚”
+  let def=state.events.find(e=>e.id==='default');
+  if(def){def.name='结婚'; def.system=true; state.records.forEach(r=>{if(r.eventId==='default')r.eventName='结婚'});}
+  // 如果没有默认事项，则创建“结婚”
+  if(!def){def={id:'default',name:'结婚',date:new Date().toISOString().slice(0,10),records:[],system:true};state.events.unshift(def);}
+  // 自动补齐六个常用事项；结婚使用 default，其余为系统事项
+  DEFAULT_EVENTS.forEach((name,i)=>{
+    if(name==='结婚') return;
+    if(!state.events.some(e=>e.name===name)) state.events.push({id:'sys_'+name,name,date:'',records:[],system:true});
+  });
+  // 旧版“结婚礼金”如果存在且不是默认事项，统一改名为“结婚”并合并到默认事项
+  const old=state.events.find(e=>e.name==='结婚礼金' && e.id!=='default');
+  if(old){state.records.forEach(r=>{if(r.eventId===old.id){r.eventId='default';r.eventName='结婚';}});state.events=state.events.filter(e=>e.id!==old.id);}
+  localStorage.setItem(KEY,JSON.stringify(state));
+}
+ensureDefaultEvents();
 
-  const state = {
-    mode:'single',
-    theme:'rainbow',
-    customBgs:[],
-    renderToken:0,
-    preset:'medium'
+// 清理旧版本可能产生的重复系统事项：六个系统事项每个只保留一个，并保留原有记录
+function dedupeSystemEvents(){
+  const canonical=new Map(SYSTEM_EVENTS.map(([id,name])=>[name,id]));
+  const keep=new Map();
+  state.events.forEach(e=>{
+    if(!canonical.has(e.name)) return;
+    const cid=canonical.get(e.name);
+    const existing=keep.get(e.name);
+    if(!existing){
+      e.id=cid; e.name=e.name; e.system=true;
+      if(!Array.isArray(e.records))e.records=[];
+      keep.set(e.name,e);
+    }else if(existing!==e){
+      state.records.forEach(r=>{if(String(r.eventId)===String(e.id)){r.eventId=cid;r.eventName=e.name;}});
+      if(Array.isArray(e.records)) existing.records.push(...e.records);
+    }
+  });
+  state.events=state.events.filter(e=>!canonical.has(e.name)||keep.get(e.name)===e);
+  state.events.forEach(e=>{
+    if(canonical.has(e.name)){e.id=canonical.get(e.name);e.system=true;}
+  });
+  state.records.forEach(r=>{const e=state.events.find(x=>x.id===r.eventId);if(e)r.eventName=e.name;});
+  localStorage.setItem(KEY,JSON.stringify(state));
+}
+dedupeSystemEvents();
+
+function save(){localStorage.setItem(KEY,JSON.stringify(state));renderAll()}
+function money(n){return '¥'+Number(n||0).toLocaleString('zh-CN',{minimumFractionDigits:0,maximumFractionDigits:2})}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function toast(t){let x=document.createElement('div');x.className='toast';x.textContent=t;document.body.appendChild(x);setTimeout(()=>x.remove(),2200)}
+function switchPage(p){
+  document.querySelectorAll('main').forEach(x=>x.classList.add('hidden'));
+  document.getElementById(p==='home'?'homePage':p==='detail'?'detailPage':'settingsPage').classList.remove('hidden');
+  document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x.dataset.page===p));
+  document.getElementById('pageTitle').textContent=p==='home'?'礼薄':p==='detail'?'明细列表':'设置';
+  renderAll();
+}
+function totals(){
+ let ins=state.records.filter(r=>r.type==='in').reduce((a,r)=>a+Number(r.amount),0);
+ let outs=state.records.filter(r=>r.type==='out').reduce((a,r)=>a+Number(r.amount),0);
+ return {ins,outs,balance:ins-outs}
+}
+function renderHome(){
+ const t=totals(); document.getElementById('balance').textContent=money(t.balance);document.getElementById('totalIn').textContent=money(t.ins);document.getElementById('totalOut').textContent=money(t.outs);
+ const box=document.getElementById('eventList');
+ if(!state.events.length){box.innerHTML='<div class="empty">还没有事项，先新建一个吧</div>';return}
+ box.innerHTML=state.events.map(e=>{
+   let rs=state.records.filter(r=>r.eventId===e.id), ins=rs.filter(r=>r.type==='in').reduce((a,r)=>a+Number(r.amount),0), outs=rs.filter(r=>r.type==='out').reduce((a,r)=>a+Number(r.amount),0);
+   return `<div class="event" onclick="openEventRecords('${e.id}')"><div class="event-icon">🎉</div><div class="event-main"><b>${esc(e.name)}</b><small>${esc(e.date||'未设置日期')} · ${rs.length} 笔</small></div><div class="event-total"><b>${money(ins-outs)}</b><small>收 ${money(ins)} · 随 ${money(outs)}</small></div><div class="event-actions" onclick="event.stopPropagation()">${!e.system?`<button onclick="editEvent('${e.id}')" title="修改事项">✎</button><button class="event-delete" onclick="deleteEvent('${e.id}')" title="删除事项">×</button>`:`<span class="system-lock" title="系统事项，不可修改删除">🔒</span>`}</div></div>`
+ }).join('');
+}
+function openEventRecords(id){currentEvent=id;switchPage('detail');}
+function setTab(t){currentTab=t;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===t));renderDetails()}
+function renderDetails(){
+ let q=(document.getElementById('searchInput')?.value||'').trim().toLowerCase();
+ let arr=state.records.filter(r=>(currentTab==='all'||r.type===currentTab)&&(currentEvent==='all'||r.eventId===currentEvent)&&((r.name||'').toLowerCase().includes(q)||(r.note||'').toLowerCase().includes(q)));
+ arr.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ const box=document.getElementById('detailList');
+ if(!arr.length){box.innerHTML='<div class="empty">暂无记录<br><small>点击底部「记账」记录一笔</small></div>';return}
+ box.innerHTML=arr.map(r=>{const label=r.content||'礼金'; const moneyText=Number(r.amount)>0?`${r.type==='in'?'+':'-'}${money(r.amount)}`:'礼品'; return `<div class="detail" onclick="editRecord('${r.id}')"><div class="avatar">${esc((r.name||'?').slice(0,1))}</div><div class="detail-main"><b>${esc(r.name||'未填写')} <span class="tag">${r.type==='in'?'收礼':'随礼'}</span> <span class="tag">${esc(label)}</span></b><p>${esc(r.eventName||'结婚')}${r.gift?' · '+esc(r.gift):''}${r.note?' · '+esc(r.note):''}</p><small>${esc(r.date)}${r.payment?' · '+esc(r.payment):''}</small></div><div class="money ${r.type==='out'?'negative':''}"><b>${moneyText}</b><small>${r.amount? (r.type==='in'?'收到':'送出') : '礼品'}</small></div></div>`}).join('');
+}
+function clearSearch(){document.getElementById('searchInput').value='';currentEvent='all';renderDetails()}
+function renderAll(){renderHome();renderDetails()}
+function openRecord(type='in', id=null){
+ let r=id?state.records.find(x=>x.id===id):null;
+ const events=state.events.map(e=>`<option value="${e.id}" ${r?.eventId===e.id?'selected':''}>${esc(e.name)}</option>`).join('');
+ const rt=r?.type||type, content=r?.content||'礼金', pay=r?.payment||'现金';
+ document.getElementById('modalRoot').innerHTML=`<div class="modal" onclick="if(event.target===this)closeModal()"><div class="sheet">
+ <div class="sheet-head"><h3>${r?'编辑记录':'记一笔'}</h3><button class="close" onclick="closeModal()">×</button></div>
+ <div class="form-card">
+ <div class="form-row"><label>账目类型</label><div class="segment"><button id="segIn" class="${rt==='in'?'active':''}" onclick="setRecordType('in')">🎁 我要收礼</button><button id="segOut" class="${rt==='out'?'active':''}" onclick="setRecordType('out')">🧧 我要随礼</button></div></div>
+ <input type="hidden" id="recordType" value="${rt}">
+ <div class="form-row"><label>记录内容</label><div class="segment three"><button id="contentCash" class="${content==='礼金'?'active':''}" onclick="setContentType('礼金')">💴 礼金</button><button id="contentGift" class="${content==='礼品'?'active':''}" onclick="setContentType('礼品')">🎁 礼品</button><button id="contentBoth" class="${content==='礼金+礼品'?'active':''}" onclick="setContentType('礼金+礼品')">🎁+💴 两者</button></div></div>
+ <input type="hidden" id="recordContent" value="${esc(content)}">
+ <div class="form-row" id="amountRow"><label>礼金金额 <span id="amountRequired">*</span></label><input class="input" id="rAmount" type="number" min="0" step="0.01" value="${r?.amount||''}" placeholder="请输入金额，没有礼金可留空"></div>
+ <div class="form-row" id="paymentRow"><label>支付方式</label><div class="segment three"><button id="payCash" class="${pay==='现金'?'active':''}" onclick="setPayment('现金')">现金</button><button id="payWechat" class="${pay==='微信'?'active':''}" onclick="setPayment('微信')">微信</button><button id="payAlipay" class="${pay==='支付宝'?'active':''}" onclick="setPayment('支付宝')">支付宝</button></div></div>
+ <input type="hidden" id="recordPayment" value="${esc(pay)}">
+ <div class="form-row" id="giftRow"><label>礼品</label><input class="input" id="rGift" value="${esc(r?.gift||'')}" placeholder="例如：牛奶、茶叶、黄金首饰，没有可留空"></div>
+ <div class="form-row"><label>姓名 *</label><input class="input" id="rName" value="${esc(r?.name||'')}" placeholder="例如：张三"></div>
+ <div class="form-row"><label>事项</label><select class="select" id="rEvent">${events}</select></div>
+ <div class="form-row"><label>日期</label><input class="input" id="rDate" type="date" value="${r?.date||new Date().toISOString().slice(0,10)}"></div>
+ <div class="form-row"><label>备注</label><textarea class="textarea" id="rNote" placeholder="例如：表弟结婚">${esc(r?.note||'')}</textarea></div>
+ <div class="notice">如果同一个人既送礼金又送礼品，选择「礼金+礼品」即可。礼品本身不计入收支金额；如需估算价值，可以写在备注中。</div>
+ <button class="primary" onclick="saveRecord('${id||''}')">${r?'保存修改':'保存记录'}</button>
+ ${r?`<button class="secondary" style="margin-top:10px;color:var(--red);border-color:#f0c8cb" onclick="deleteRecord('${r.id}')">删除这笔记录</button>`:''}
+ </div></div></div>`;
+ updateRecordContentUI();
+}
+function setContentType(t){document.getElementById('recordContent').value=t;updateRecordContentUI()}
+function setPayment(t){document.getElementById('recordPayment').value=t;document.querySelectorAll('#paymentRow .segment button').forEach(b=>b.classList.toggle('active',b.textContent.trim()===t))}
+function updateRecordContentUI(){
+ const t=document.getElementById('recordContent').value;
+ ['礼金','礼品+礼金','礼金+礼品'].includes(t);
+ document.getElementById('contentCash')?.classList.toggle('active',t==='礼金');
+ document.getElementById('contentGift')?.classList.toggle('active',t==='礼品');
+ document.getElementById('contentBoth')?.classList.toggle('active',t==='礼金+礼品');
+ const hasMoney=t!=='礼品';
+ document.getElementById('amountRow').style.display=hasMoney?'':'none';
+ document.getElementById('paymentRow').style.display=hasMoney?'':'none';
+ document.getElementById('giftRow').style.display=(t==='礼品'||t==='礼金+礼品')?'':'none';
+}
+function setRecordType(t){document.getElementById('recordType').value=t;document.getElementById('segIn').classList.toggle('active',t==='in');document.getElementById('segOut').classList.toggle('active',t==='out')}
+function saveRecord(id){
+ const name=document.getElementById('rName').value.trim();
+ const content=document.getElementById('recordContent').value;
+ const amount=content==='礼品'?0:Number(document.getElementById('rAmount').value||0);
+ const gift=document.getElementById('rGift').value.trim();
+ if(!name)return toast('请填写姓名');
+ if(content==='礼金' && !(amount>0))return toast('礼金请输入正确金额');
+ if(content==='礼金+礼品' && !(amount>0) && !gift)return toast('礼金或礼品至少填写一项');
+ if(content==='礼品' && !gift)return toast('请填写礼品内容');
+ const eid=document.getElementById('rEvent').value, ev=state.events.find(e=>e.id===eid);
+ const obj={id:id||Date.now().toString(),type:document.getElementById('recordType').value,name,amount,eventId:eid,eventName:ev?.name||'',date:document.getElementById('rDate').value,note:document.getElementById('rNote').value.trim(),content,payment:content==='礼品'?'':document.getElementById('recordPayment').value,gift};
+ if(id){let i=state.records.findIndex(r=>r.id===id);if(i>=0)state.records[i]=obj}else state.records.push(obj);
+ closeModal();save();toast('记录已保存');
+}
+function editRecord(id){openRecord('in',id)}
+function deleteRecord(id){if(!confirm('确定删除这笔记录吗？'))return;state.records=state.records.filter(r=>r.id!==id);closeModal();save();toast('已删除')}
+function openEventModal(id=null){
+ const e=id?state.events.find(x=>x.id===id):null;
+ if(e?.system)return toast('默认事项不能修改');
+ document.getElementById('modalRoot').innerHTML=`<div class="modal" onclick="if(event.target===this)closeModal()"><div class="sheet"><div class="sheet-head"><h3>${e?'修改事项':'新建事项'}</h3><button class="close" onclick="closeModal()">×</button></div><div class="form-card"><div class="form-row"><label>事项名称 *</label><input class="input" id="eName" value="${esc(e?.name||'')}" placeholder="例如：婚、丧、嫁、娶"></div><div class="form-row"><label>日期</label><input class="input" id="eDate" type="date" value="${e?.date||new Date().toISOString().slice(0,10)}"></div><button class="primary" onclick="saveEvent('${id||''}')">${e?'保存修改':'创建事项'}</button>${e&&e.id!=='default'?`<button class="secondary" style="margin-top:10px;color:var(--red);border-color:#f0c8cb" onclick="deleteEvent('${e.id}')">删除这个事项</button>`:''}</div></div></div>`;
+}
+function saveEvent(id=''){
+ let name=document.getElementById('eName').value.trim();
+ if(!name)return toast('请填写事项名称');
+ let date=document.getElementById('eDate').value;
+ if(id){
+   let e=state.events.find(x=>x.id===id); if(!e)return;
+   let old=e.name; e.name=name;e.date=date;
+   state.records.forEach(r=>{if(r.eventId===id)r.eventName=name});
+   closeModal();save();toast('事项已修改');
+ }else{
+   state.events.push({id:Date.now().toString(),name,date,records:[],system:false});closeModal();save();toast('事项创建成功');
+ }
+}
+function editEvent(id){openEventModal(id)}
+function deleteEvent(id){
+ const sys=state.events.find(x=>x.id===id); if(sys?.system)return toast('默认事项不能删除');
+ const e=state.events.find(x=>x.id===id);if(!e)return;
+ const count=state.records.filter(r=>r.eventId===id).length;
+ const msg=count?`“${e.name}”有 ${count} 笔记录，删除事项后这些记录也会一起删除。确定继续吗？`:`确定删除事项“${e.name}”吗？`;
+ if(!confirm(msg))return;
+ state.events=state.events.filter(x=>x.id!==id);state.records=state.records.filter(r=>r.eventId!==id);if(currentEvent===id)currentEvent='all';save();toast('事项及相关记录已删除');
+}
+function closeModal(){document.getElementById('modalRoot').innerHTML=''}
+function createFullBackup(){
+  const backup={
+    format:'礼薄完整备份',
+    version:1,
+    appVersion:'1.5',
+    exportedAt:new Date().toISOString(),
+    theme:localStorage.getItem('giftbook_theme')||'day',
+    data:{events:state.events,records:state.records}
   };
-
-  const presets = {
-    medium:{cols:4,rows:10,w:43,h:25,gx:4,gy:3,ml:13,mt:10,r:2},
-    large:{cols:3,rows:8,w:58,h:30,gx:5,gy:6,ml:13,mt:7.5,r:2.5},
-    small:{cols:5,rows:12,w:34,h:20,gx:3,gy:3,ml:14,mt:12,r:1.7},
-    mini:{cols:6,rows:18,w:30,h:12,gx:2,gy:2,ml:10,mt:23.5,r:1.2}
-  };
-
-  const themes = [
-    {id:'none',name:'无背景'},
-    {id:'minimal',name:'极简清新'},
-    {id:'rainbow',name:'奶油彩虹'},
-    {id:'forest',name:'森系叶子'},
-    {id:'ocean',name:'海洋泡泡'},
-    {id:'stars',name:'星际探索'},
-    {id:'stationery',name:'校园文具'},
-    {id:'sport',name:'运动活力'},
-    {id:'flowers',name:'柔粉花园'},
-    {id:'custom',name:'我的图片'}
-  ];
-
-  const fonts = {
-    rounded:'"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",Arial,sans-serif',
-    hei:'SimHei,"Microsoft YaHei",Arial,sans-serif',
-    kai:'KaiTi,STKaiti,"Kaiti SC",serif',
-    song:'SimSun,STSong,"Songti SC",serif'
-  };
-
-  function svgData(svg){ return `url("data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}")`; }
-
-  function themeSvg(id, variant=0){
-    const flip = variant % 2 ? -1 : 1;
-    const v = variant % 4;
-    const baseStart = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 290" preserveAspectRatio="xMidYMid slice">`;
-    const end = `</svg>`;
-    if(id==='none') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 290"><rect width="500" height="290" fill="#fff"/></svg>`;
-    if(id==='minimal') return baseStart+`
-      <rect width="500" height="290" rx="24" fill="#fff"/>
-      <rect x="8" y="8" width="484" height="274" rx="20" fill="none" stroke="#7fc8d8" stroke-width="5"/>
-      <path d="M18 70 C70 34 118 32 168 49" fill="none" stroke="#f4b7c8" stroke-width="10" stroke-linecap="round" opacity=".8"/>
-      <path d="M330 244 C385 272 446 264 485 222" fill="none" stroke="#f7d57a" stroke-width="9" stroke-linecap="round" opacity=".85"/>
-      <circle cx="55" cy="230" r="8" fill="#9eddbd"/><circle cx="77" cy="245" r="5" fill="#9eddbd"/><circle cx="435" cy="47" r="7" fill="#d9b7f1"/>
-    `+end;
-    if(id==='rainbow') return baseStart+`
-      <rect width="500" height="290" rx="26" fill="#fffaf2"/>
-      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#efb56a" stroke-width="4"/>
-      <g transform="translate(${v===1?350:18},${v===1?190:20}) scale(.95)">
-        <path d="M20 82 A70 70 0 0 1 160 82" fill="none" stroke="#f28e9e" stroke-width="14"/>
-        <path d="M35 82 A55 55 0 0 1 145 82" fill="none" stroke="#f4c56c" stroke-width="14"/>
-        <path d="M50 82 A40 40 0 0 1 130 82" fill="none" stroke="#83c8b2" stroke-width="14"/>
-        <circle cx="20" cy="85" r="18" fill="#fff"/><circle cx="160" cy="85" r="18" fill="#fff"/>
-      </g>
-      <g fill="#f2b0c2" opacity=".65"><circle cx="450" cy="45" r="6"/><circle cx="468" cy="63" r="4"/><circle cx="430" cy="67" r="3"/></g>
-      <path d="M400 247c25-18 55-13 82-35" stroke="#a9d9cd" stroke-width="8" stroke-linecap="round" fill="none" opacity=".65"/>
-    `+end;
-    if(id==='forest') return baseStart+`
-      <rect width="500" height="290" rx="26" fill="#f7fcf7"/>
-      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#80b98c" stroke-width="4"/>
-      <g transform="translate(${v===2?365:15},${v===2?170:20}) rotate(${flip*6})">
-        <path d="M50 190 C55 135 68 80 95 25" stroke="#5d8d67" stroke-width="7" fill="none" stroke-linecap="round"/>
-        <ellipse cx="78" cy="58" rx="28" ry="13" fill="#a7d7a9" transform="rotate(-34 78 58)"/>
-        <ellipse cx="63" cy="99" rx="26" ry="12" fill="#c8e4b2" transform="rotate(28 63 99)"/>
-        <ellipse cx="89" cy="126" rx="27" ry="12" fill="#91c79a" transform="rotate(-30 89 126)"/>
-        <ellipse cx="57" cy="153" rx="24" ry="11" fill="#d6eabf" transform="rotate(25 57 153)"/>
-      </g>
-      <g fill="#a9cfa5" opacity=".6"><circle cx="447" cy="44" r="5"/><circle cx="466" cy="61" r="3"/><circle cx="430" cy="67" r="4"/></g>
-    `+end;
-    if(id==='ocean') return baseStart+`
-      <rect width="500" height="290" rx="26" fill="#f4fbff"/>
-      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#67b7d7" stroke-width="4"/>
-      <path d="M0 242 C65 213 110 270 175 242 S285 214 350 243 S455 266 510 235 L510 300 L0 300Z" fill="#cceef5" opacity=".85"/>
-      <path d="M0 258 C75 230 115 283 190 257 S300 234 370 258 S455 279 510 250" fill="none" stroke="#86cfdf" stroke-width="7" opacity=".8"/>
-      <g fill="none" stroke="#8ecfe4" stroke-width="4" opacity=".75"><circle cx="55" cy="58" r="14"/><circle cx="82" cy="38" r="7"/><circle cx="443" cy="69" r="9"/><circle cx="462" cy="46" r="5"/></g>
-      <g transform="translate(${v===3?360:42},${v===3?45:125})"><ellipse cx="52" cy="36" rx="42" ry="22" fill="#78bdd5"/><path d="M90 33 q28-20 38 2 q-14 22-39 15" fill="#78bdd5"/><circle cx="38" cy="30" r="3.5" fill="#234"/></g>
-    `+end;
-    if(id==='stars') return baseStart+`
-      <rect width="500" height="290" rx="26" fill="#f8f7ff"/>
-      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#8e8dd8" stroke-width="4"/>
-      <g fill="#f1c75b" opacity=".9"><path d="M60 43 l5 14 15 1-12 9 4 15-12-8-12 8 4-15-12-9 15-1z"/><path d="M438 222 l4 11 12 1-9 7 3 12-10-6-9 6 3-12-10-7 12-1z"/></g>
-      <g fill="#a8a7e7" opacity=".65"><circle cx="110" cy="232" r="5"/><circle cx="132" cy="210" r="3"/><circle cx="418" cy="58" r="4"/><circle cx="392" cy="38" r="3"/></g>
-      <g transform="translate(${v===1?350:30},${v===1?32:165}) rotate(${v===1?18:-12})"><path d="M40 0 C72 17 78 50 56 76 L38 98 L18 76 C-4 51 6 18 40 0Z" fill="#8d8dd4"/><circle cx="40" cy="42" r="14" fill="#f8f7ff"/><path d="M18 76 L3 94 L24 88 ZM56 76 L76 94 L55 89Z" fill="#bbb9ee"/><path d="M29 99 L39 126 L49 99" fill="#f3a05d"/></g>
-    `+end;
-    if(id==='stationery') return baseStart+`
-      <rect width="500" height="290" rx="26" fill="#fffaf5"/>
-      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#e1a36b" stroke-width="4"/>
-      <g transform="translate(${v===2?360:20},${v===2?160:25}) rotate(${flip*4})"><rect x="15" y="24" width="72" height="92" rx="7" fill="#9ccbd7"/><rect x="25" y="36" width="52" height="68" rx="4" fill="#f8ffff"/><line x1="34" y1="50" x2="68" y2="50" stroke="#c5dfe6" stroke-width="5"/><line x1="34" y1="65" x2="68" y2="65" stroke="#c5dfe6" stroke-width="5"/><line x1="34" y1="80" x2="60" y2="80" stroke="#c5dfe6" stroke-width="5"/><g transform="translate(77 12) rotate(18)"><rect width="16" height="108" rx="4" fill="#f1be62"/><polygon points="0,108 16,108 8,126" fill="#b77d58"/><rect y="0" width="16" height="16" fill="#ec8fa3"/></g></g>
-      <g fill="#e8c293" opacity=".65"><circle cx="444" cy="50" r="5"/><circle cx="467" cy="72" r="3"/><circle cx="423" cy="78" r="4"/></g>
-    `+end;
-    if(id==='sport') return baseStart+`
-      <rect width="500" height="290" rx="26" fill="#f8fcff"/>
-      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#5db7c8" stroke-width="4"/>
-      <g transform="translate(${v===2?375:27},${v===2?180:35})"><circle cx="48" cy="48" r="42" fill="#fff" stroke="#58a5b5" stroke-width="5"/><path d="M48 6 C33 24 31 70 48 90 M6 48 C30 34 67 34 90 48 M20 18 C38 34 60 62 76 78 M76 18 C58 34 34 64 20 78" stroke="#58a5b5" stroke-width="4" fill="none" opacity=".9"/></g>
-      <path d="M395 240 q28-50 76-24" fill="none" stroke="#f2a35f" stroke-width="10" stroke-linecap="round" opacity=".75"/>
-      <circle cx="432" cy="64" r="7" fill="#f5c061"/><circle cx="455" cy="42" r="4" fill="#f5c061"/>
-    `+end;
-    if(id==='flowers') return baseStart+`
-      <rect width="500" height="290" rx="26" fill="#fff9fb"/>
-      <rect x="7" y="7" width="486" height="276" rx="22" fill="none" stroke="#e49ab5" stroke-width="4"/>
-      <g transform="translate(${v===1?365:18},${v===1?182:26})"><path d="M35 170 C42 113 56 65 83 20" stroke="#7fae83" stroke-width="6" fill="none" stroke-linecap="round"/><ellipse cx="54" cy="119" rx="22" ry="10" fill="#acd0a5" transform="rotate(25 54 119)"/><ellipse cx="73" cy="78" rx="20" ry="10" fill="#b9d8aa" transform="rotate(-26 73 78)"/><g transform="translate(83 20)"><circle cx="0" cy="0" r="15" fill="#f4adc5"/><circle cx="20" cy="4" r="15" fill="#f7bfd2"/><circle cx="12" cy="23" r="15" fill="#eda3bd"/><circle cx="-8" cy="19" r="15" fill="#f7c2d4"/><circle cx="6" cy="10" r="7" fill="#f2c65c"/></g></g>
-      <g fill="#e8a7be" opacity=".55"><circle cx="445" cy="52" r="4"/><circle cx="466" cy="68" r="6"/><circle cx="422" cy="76" r="3"/></g>
-    `+end;
-    return themeSvg('none',0);
-  }
-
-  // 转换内置SVG为DataURL，确保 html2canvas 渲染不丢失外部/内联 SVG 背景
-  function themeDataUrl(id, variant=0){
-    const svgStr = themeSvg(id, variant);
-    return `url("data:image/svg+xml;utf8,${encodeURIComponent(svgStr)}")`;
-  }
-
-  function renderThemePicker(){
-    const grid = el('themeGrid');
-    grid.innerHTML='';
-    themes.forEach((t,i)=>{
-      const b=document.createElement('button');
-      b.type='button'; b.className='theme-card'+(state.theme===t.id?' active':''); b.dataset.theme=t.id;
-      const th=document.createElement('div'); th.className='theme-thumb';
-      if(t.id==='custom'){
-        th.style.background='linear-gradient(135deg,#fff1f6,#f4f6ff)';
-        th.style.position='relative';
-        th.innerHTML='<div style="display:grid;place-items:center;height:100%;font-size:19px;color:#b94e78">＋</div>';
-      }else th.style.backgroundImage=themeDataUrl(t.id, i%4);
-      const name=document.createElement('div');name.className='theme-name';name.textContent=t.name;
-      b.append(th,name);
-      b.addEventListener('click',()=>{
-        if(t.id==='custom' && !state.customBgs.length){ el('bgFiles').click(); return; }
-        state.theme=t.id; renderThemePicker(); saveSettings(); scheduleRender();
-      });
-      grid.appendChild(b);
-    });
-  }
-
-  function setMode(mode){
-    state.mode=mode;
-    $$('#modeSeg button').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
-    el('singlePanel').classList.toggle('hidden',mode!=='single');
-    el('batchPanel').classList.toggle('hidden',mode!=='batch');
-    scheduleRender();
-  }
-
-  function n(id, fallback=0){ const v=parseFloat(el(id).value); return Number.isFinite(v)?v:fallback; }
-  function s(id){ return el(id).value.trim(); }
-
-  function applyPreset(key){
-    const p=presets[key]; if(!p) return;
-    state.preset=key;
-    el('cols').value=p.cols;el('rows').value=p.rows;el('labelW').value=p.w;el('labelH').value=p.h;el('gapX').value=p.gx;el('gapY').value=p.gy;el('marginLeft').value=p.ml;el('marginTop').value=p.mt;el('radius').value=p.r;
-    $$('#presetRow .preset').forEach(b=>b.classList.toggle('active',b.dataset.preset===key));
-    saveSettings(); scheduleRender();
-  }
-
-  function markCustomLayout(){ state.preset=null; $$('#presetRow .preset').forEach(b=>b.classList.remove('active')); }
-
-  function parseBatch(text){
-    const rows=[];
-    text.split(/\r?\n/).forEach(raw=>{
-      const line=raw.trim(); if(!line) return;
-      let parts=line.includes('\t')?line.split('\t'):line.split(/[,，]/);
-      parts=parts.map(x=>x.trim()).filter((x,i)=>x!=='' || i<3);
-      if(parts.some(x=>/姓名/.test(x)) && parts.some(x=>/班级|学号|姓名/.test(x))) return;
-      let item={className:'',no:'',name:'',phone:'',qty:null};
-      if(parts.length===1){ item.name=parts[0]; }
-      else if(parts.length===2){ item.className=parts[0];item.name=parts[1]; }
-      else { item.className=parts[0];item.no=parts[1];item.name=parts[2];if(parts[3] && /^\d+$/.test(parts[3])) item.qty=Math.max(1,parseInt(parts[3],10)); }
-      if(item.name) rows.push(item);
-    });
-    return rows;
-  }
-
-  function buildItems(){
-    const items=[];
-    const contentMode=el('contentMode').value;
-    if(contentMode==='handwrite'){
-      const count = state.mode==='single' ? Math.max(1,Math.floor(n('singleCount',40))) : Math.max(1,parseBatch(el('batchText').value).length * Math.max(1,Math.floor(n('batchRepeat',1))) || (Math.floor(n('cols',4))*Math.floor(n('rows',10))));
-      for(let i=0;i<count;i++) items.push({className:'',no:'',name:'',phone:'',handwrite:true});
-      return items;
-    }
-    if(state.mode==='single'){
-      const item={className:s('singleClass'),no:s('singleNo'),name:s('singleName')||'姓名',phone:s('singlePhone')};
-      const count=Math.max(1,Math.floor(n('singleCount',40)));
-      for(let i=0;i<count;i++) items.push({...item});
-    }else{
-      const parsed=parseBatch(el('batchText').value);
-      const repeat=Math.max(1,Math.floor(n('batchRepeat',1)));
-      parsed.forEach(row=>{
-        const q=row.qty || repeat;
-        for(let i=0;i<q;i++) items.push({...row});
-      });
-      if(!items.length) items.push({className:'一年级3班',no:'01',name:'张小雨',phone:''});
-    }
-    return items;
-  }
-
-  function bgFor(index){
-    if(state.theme==='custom'){
-      if(!state.customBgs.length) return {image:themeDataUrl('none',0),custom:false};
-      return {image:`url("${state.customBgs[index % state.customBgs.length].data}")`,custom:true};
-    }
-    const variant=el('themeShuffle').checked ? index%4 : 0;
-    return {image:themeDataUrl(state.theme,variant),custom:false};
-  }
-
-  function addText(card,item){
-    const content=document.createElement('div');content.className='label-content';
-    const align=el('textAlign').value; content.style.textAlign=align;
-    content.style.top=`${n('textY',50)}%`;
-    const family=fonts[el('fontFamily').value]||fonts.rounded; content.style.fontFamily=family;
-    const nameColor=el('nameColor').value; const infoColor=el('infoColor').value;
-    const nameSize=n('nameSize',18); const infoSize=n('infoSize',8);
-    if(item.handwrite){
-      const box=document.createElement('div');box.className='handwrite';box.style.fontSize=`${Math.max(8,infoSize+1)}pt`;box.style.color=infoColor;
-      const l1=document.createElement('div');l1.className='handline';l1.append(document.createTextNode('姓名：'),document.createElement('i'));
-      box.append(l1);
-      if(el('showClass').checked){const l=document.createElement('div');l.className='handline';l.append(document.createTextNode('班级：'),document.createElement('i'));box.append(l);}
-      if(el('showNo').checked){const l=document.createElement('div');l.className='handline';l.append(document.createTextNode('学号：'),document.createElement('i'));box.append(l);}
-      content.append(box);
-    }else{
-      const name=document.createElement('div');name.className='label-name';name.textContent=item.name;name.style.fontSize=`${nameSize}pt`;name.style.color=nameColor;
-      content.appendChild(name);
-      const info=[];
-      if(el('showClass').checked && item.className) info.push(`班级：${item.className}`);
-      if(el('showNo').checked && item.no) info.push(`学号：${item.no}`);
-      if(info.length){
-        const d=document.createElement('div');
-        d.className='label-info';
-        d.style.fontSize=`${infoSize}pt`;
-        d.style.color=infoColor;
-        d.style.justifyContent = align==='center' ? 'center' : (align==='right' ? 'flex-end' : 'flex-start');
-        d.style.width='100%';
-        info.forEach(t=>{const x=document.createElement('span');x.textContent=t;d.appendChild(x)});
-        content.appendChild(d);
-      }
-      if(el('showPhone').checked && item.phone){const p=document.createElement('div');p.className='label-phone';p.style.fontSize=`${Math.max(6,infoSize-.5)}pt`;p.style.color=infoColor;p.textContent=`电话：${item.phone}`;content.appendChild(p);}
-    }
-    card.appendChild(content);
-  }
-
-  function buildLabel(item,index,w,h,r){
-    const card=document.createElement('div');card.className='label-card';
-    card.style.width=`${w}mm`;card.style.height=`${h}mm`;card.style.borderRadius=`${r}mm`;
-    const bg=document.createElement('div');bg.className='label-bg';bg.style.borderRadius=`${r}mm`;
-    const b=bgFor(index);bg.style.backgroundImage=b.image;
-    if(b.custom){
-      const fit=el('bgFit').value;
-      bg.style.backgroundSize=fit;
-      bg.style.backgroundPosition=`${n('bgPosX',50)}% ${n('bgPosY',50)}%`;
-    }
-    const wash=document.createElement('div');wash.className='label-wash';wash.style.opacity=String(Math.max(0,Math.min(.95,n('bgFade',.3))));wash.style.borderRadius=`${r}mm`;
-    card.append(bg,wash);
-    addText(card,item);
-    if(el('showCut').checked){const cut=document.createElement('div');cut.className='label-cut';cut.style.borderRadius=`${r}mm`;card.appendChild(cut);}
-    return card;
-  }
-
-  function layoutFits(){
-    const cols=Math.max(1,Math.floor(n('cols',4))), rows=Math.max(1,Math.floor(n('rows',10)));
-    const w=n('labelW',43),h=n('labelH',25),gx=n('gapX',4),gy=n('gapY',3),ml=n('marginLeft',13),mt=n('marginTop',10),ox=n('offsetX',0),oy=n('offsetY',0);
-    const usedW=ml+ox+cols*w+(cols-1)*gx;
-    const usedH=mt+oy+rows*h+(rows-1)*gy;
-    return {ok:usedW<=210.01 && usedH<=297.01 && ml+ox>=-0.01 && mt+oy>=-0.01,usedW,usedH};
-  }
-
-  function render(){
-    const token=++state.renderToken;
-    const area=el('printArea');area.innerHTML='';
-    const items=buildItems();
-    const cols=Math.max(1,Math.floor(n('cols',4))),rows=Math.max(1,Math.floor(n('rows',10)));
-    const perPage=cols*rows;
-    const pages=Math.max(1,Math.ceil(items.length/perPage));
-    const w=n('labelW',43),h=n('labelH',25),gx=n('gapX',4),gy=n('gapY',3),ml=n('marginLeft',13),mt=n('marginTop',10),r=n('radius',2),ox=n('offsetX',0),oy=n('offsetY',0);
-    const fit=layoutFits();
-    el('statLabels').textContent=items.length; el('statPerPage').textContent=perPage; el('statPages').textContent=pages;
-    el('layoutWarn').textContent=fit.ok?'':`⚠ 当前排版超出 A4（${fit.usedW.toFixed(1)}×${fit.usedH.toFixed(1)}mm）`;
-
-    for(let p=0;p<pages;p++){
-      if(token!==state.renderToken) return;
-      const sheet=document.createElement('section');sheet.className='sheet';
-      const grid=document.createElement('div');grid.className='sheet-grid';
-      if(state.preset==='mini') {
-        grid.style.left='50%';
-        grid.style.top='50%';
-        grid.style.transform=`translate(calc(-50% + ${ox}mm), calc(-50% + ${oy}mm))`;
-      } else {
-        grid.style.left=`${ml}mm`;
-        grid.style.top=`${mt}mm`;
-        grid.style.transform=`translate(${ox}mm,${oy}mm)`;
-      }
-      grid.style.gridTemplateColumns=`repeat(${cols}, ${w}mm)`;
-      grid.style.gridTemplateRows=`repeat(${rows}, ${h}mm)`;
-      grid.style.columnGap=`${gx}mm`;
-      grid.style.rowGap=`${gy}mm`;
-      const start=p*perPage;
-      for(let i=0;i<perPage;i++){
-        const idx=start+i;
-        if(idx<items.length) grid.appendChild(buildLabel(items[idx],idx,w,h,r));
-        else {const empty=document.createElement('div');empty.className='empty-cell';empty.style.width=`${w}mm`;empty.style.height=`${h}mm`;grid.appendChild(empty);}
-      }
-      sheet.appendChild(grid);area.appendChild(sheet);
-    }
-  }
-
-  let rt;
-  function scheduleRender(){clearTimeout(rt);rt=setTimeout(render,60)}
-  function toast(msg){const t=el('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),1800)}
-
-  function syncRange(a,b){
-    const r=el(a), num=el(b);
-    r.addEventListener('input',()=>{num.value=r.value;scheduleRender();saveSettings()});
-    num.addEventListener('input',()=>{let v=Math.max(+r.min,Math.min(+r.max,+num.value||+r.value));r.value=v;num.value=v;scheduleRender();saveSettings()});
-  }
-
-  function saveSettings(){
+  const json=JSON.stringify(backup,null,2);
+  const stamp=new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+  const blob=new Blob([json],{type:'application/json;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='礼薄完整备份_'+stamp+'.giftbook.json';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);toast('完整备份已导出');
+}
+function restoreFullBackup(){
+  document.getElementById('backupFile').click();
+}
+function handleFullBackup(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const rd=new FileReader();rd.onload=()=>{
     try{
-      const ids=['contentMode','showClass','showNo','showPhone','fontFamily','textAlign','nameSize','infoSize','textY','nameColor','infoColor','bgFit','bgFade','bgPosX','bgPosY','themeShuffle','showCut','cols','rows','marginLeft','labelW','labelH','marginTop','gapX','gapY','radius','offsetX','offsetY'];
-      const o={theme:state.theme==='custom'?'rainbow':state.theme,preset:state.preset};
-      ids.forEach(id=>{const e=el(id);o[id]=e.type==='checkbox'?e.checked:e.value});
-      localStorage.setItem('nameTagSettingsV1',JSON.stringify(o));
-    }catch(_){ }
-  }
-  function loadSettings(){
-    try{
-      const o=JSON.parse(localStorage.getItem('nameTagSettingsV1')||'null');if(!o)return;
-      if(o.theme) state.theme=o.theme;
-      Object.entries(o).forEach(([id,v])=>{const e=el(id);if(!e)return;if(e.type==='checkbox')e.checked=!!v;else e.value=v});
-      if(o.preset==='mini' || (!o.preset && String(o.cols)==='6' && String(o.rows)==='18' && String(o.labelW)==='30' && String(o.labelH)==='12')) state.preset='mini';
-      else if(o.preset) state.preset=o.preset;
-      el('nameSizeNum').value=el('nameSize').value;el('infoSizeNum').value=el('infoSize').value;el('textYNum').value=el('textY').value;
-    }catch(_){ }
-  }
+      const b=JSON.parse(rd.result);
+      if(b.format!=='礼薄完整备份'||!b.data||!Array.isArray(b.data.events)||!Array.isArray(b.data.records))throw Error('不是有效的礼薄完整备份文件');
+      if(!confirm('恢复完整备份会替换当前设备上的全部礼薄数据。确定继续吗？')){ev.target.value='';return}
+      const cleanEvents=b.data.events.map(e=>({id:String(e.id),name:String(e.name||'未命名事项'),date:e.date||'',records:Array.isArray(e.records)?e.records:[],system:!!e.system}));
+      const ids=new Set(cleanEvents.map(e=>e.id));
+      const cleanRecords=b.data.records.map(r=>({...r,id:String(r.id),eventId:String(r.eventId||''),name:String(r.name||''),amount:Number(r.amount)||0})).filter(r=>!r.eventId||ids.has(r.eventId));
+      state={events:cleanEvents,records:cleanRecords};
+      localStorage.setItem(KEY,JSON.stringify(state));
+      if(b.theme==='night'||b.theme==='day')localStorage.setItem('giftbook_theme',b.theme);
+      updateThemeButtons();renderAll();toast('完整备份恢复成功，共 '+cleanRecords.length+' 笔记录');
+    }catch(e){toast('恢复失败：'+e.message)}
+    ev.target.value='';
+  };rd.readAsText(f,'UTF-8');
+}
+function exportCSV(){
+ let head=['日期','姓名','类型','金额','事项','备注'],rows=[head,...state.records.map(r=>[r.date,r.name,r.type==='in'?'收礼':'随礼',r.amount,r.eventName,r.note])];
+ let csv='\ufeff'+rows.map(row=>row.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+ let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='礼薄记录.csv';a.click();URL.revokeObjectURL(a.href);toast('CSV 已导出');
+}
+function importCSV(){document.getElementById('csvFile').click()}
+function handleCSV(ev){
+ let f=ev.target.files[0];if(!f)return;let rd=new FileReader();rd.onload=()=>{let lines=rd.result.replace(/^\ufeff/,'').split(/\r?\n/).filter(Boolean);if(lines.length<2)return toast('CSV 没有可导入的记录');let count=0;
+ lines.slice(1).forEach(line=>{let c=line.match(/(".*?"|[^,]+)(?=,|$)/g)?.map(x=>x.replace(/^"|"$/g,'').replace(/""/g,'"'))||[];if(c.length>=4){let type=c[2]==='随礼'?'out':'in', ev=state.events.find(e=>e.name===c[4]);if(!ev){ev={id:Date.now().toString()+Math.random(),name:c[4]||'导入事项',date:c[0]||'',records:[]};state.events.push(ev)}state.records.push({id:Date.now().toString()+Math.random(),date:c[0]||'',name:c[1]||'未填写',type,amount:Number(c[3])||0,eventId:ev.id,eventName:ev.name,note:c[5]||''});count++}});save();toast('成功导入 '+count+' 条记录')};rd.readAsText(f,'UTF-8');ev.target.value=''
+}
 
-  function resetAll(){
-    localStorage.removeItem('nameTagSettingsV1');
-    state.mode='single';state.theme='rainbow';state.customBgs=[];state.preset='medium';
-    el('singleName').value='王小明';el('singleClass').value='一年级 3 班';el('singleNo').value='08';el('singlePhone').value='';el('singleCount').value=40;el('countQuick').value='40';
-    el('batchText').value='';el('batchRepeat').value=2;el('contentMode').value='digital';el('showClass').checked=true;el('showNo').checked=true;el('showPhone').checked=false;el('fontFamily').value='rounded';el('textAlign').value='center';el('nameSize').value=18;el('nameSizeNum').value=18;el('infoSize').value=8;el('infoSizeNum').value=8;el('textY').value=50;el('textYNum').value=50;el('nameColor').value='#1f2937';el('infoColor').value='#4b5563';el('bgFit').value='cover';el('bgFade').value='0.3';el('bgPosX').value=50;el('bgPosY').value=50;el('themeShuffle').checked=true;el('showCut').checked=true;el('offsetX').value=0;el('offsetY').value=0;
-    setMode('single');applyPreset('medium');renderThemePicker();el('fileList').textContent='可一次选择多张，生成时自动循环使用。';toast('已恢复默认设置');
-  }
-
-  function fillExample(){
-    setMode('batch');
-    el('batchText').value=['一年级3班\t01\t张小雨','一年级3班\t02\t李乐乐','一年级3班\t03\t陈子安','一年级3班\t04\t周可欣','一年级3班\t05\t赵一诺','一年级3班\t06\t林浩然','一年级3班\t07\t孙语桐','一年级3班\t08\t王嘉树'].join('\n');
-    el('batchRepeat').value=5;scheduleRender();toast('已填入 8 位学生示例');
-  }
-
-  function readBgFiles(files){
-    const arr=[...files].slice(0,20); if(!arr.length)return;
-    Promise.all(arr.map(file=>new Promise((resolve,reject)=>{
-      const rd=new FileReader();rd.onload=()=>resolve({name:file.name,data:rd.result});rd.onerror=reject;rd.readAsDataURL(file);
-    }))).then(list=>{
-      state.customBgs=list;state.theme='custom';el('fileList').textContent=`已加载 ${list.length} 张：`+list.map(x=>x.name).join('、');renderThemePicker();scheduleRender();toast(`已加载 ${list.length} 张背景图`);
-    }).catch(()=>toast('背景图读取失败，请换 PNG/JPG/WebP'));
-  }
-
-  function u16(dv,o){return dv.getUint16(o,true)}
-  function u32(dv,o){return dv.getUint32(o,true)}
-  function decodeUtf8(bytes){return new TextDecoder('utf-8').decode(bytes)}
-
-  async function unzipXlsx(arrayBuffer){
-    const bytes=new Uint8Array(arrayBuffer), dv=new DataView(arrayBuffer);
-    let eocd=-1;
-    for(let i=Math.max(0,bytes.length-65557);i<=bytes.length-22;i++){
-      if(u32(dv,i)===0x06054b50)eocd=i;
-    }
-    if(eocd<0) throw new Error('不是有效的 XLSX 文件');
-    const total=u16(dv,eocd+10), cdOffset=u32(dv,eocd+16);
-    const entries=new Map(); let p=cdOffset;
-    for(let i=0;i<total;i++){
-      if(u32(dv,p)!==0x02014b50) throw new Error('XLSX 目录结构异常');
-      const method=u16(dv,p+10), csize=u32(dv,p+20), usize=u32(dv,p+24);
-      const nlen=u16(dv,p+28), xlen=u16(dv,p+30), clen=u16(dv,p+32), local=u32(dv,p+42);
-      const name=decodeUtf8(bytes.slice(p+46,p+46+nlen));
-      if(u32(dv,local)!==0x04034b50) throw new Error('XLSX 文件结构异常');
-      const ln=u16(dv,local+26), lx=u16(dv,local+28), start=local+30+ln+lx;
-      const comp=bytes.slice(start,start+csize); let data;
-      if(method===0) data=comp;
-      else if(method===8){
-        if(typeof DecompressionStream==='undefined') throw new Error('当前浏览器版本过旧，无法解压 XLSX');
-        const ds=new DecompressionStream('deflate-raw');
-        data=new Uint8Array(await new Response(new Blob([comp]).stream().pipeThrough(ds)).arrayBuffer());
-      }else throw new Error('XLSX 使用了暂不支持的压缩方式');
-      entries.set(name,data);
-      p+=46+nlen+xlen+clen;
-    }
-    return entries;
-  }
-
-  function xmlDoc(bytes){
-    const xml=decodeUtf8(bytes||new Uint8Array());
-    const doc=new DOMParser().parseFromString(xml,'application/xml');
-    if(doc.getElementsByTagName('parsererror').length || doc.getElementsByTagNameNS('*','parsererror').length) throw new Error('XLSX 内部 XML 解析失败');
-    return doc;
-  }
-
-  function xmlAll(root, localName){
-    if(!root) return [];
-    try{
-      const ns=[...root.getElementsByTagNameNS('*',localName)];
-      if(ns.length) return ns;
-    }catch(_){ }
-    return [...root.getElementsByTagName(localName)].filter(n => (n.localName||n.nodeName.split(':').pop())===localName);
-  }
-  function xmlFirst(root, localName){ return xmlAll(root,localName)[0] || null; }
-
-  function colIndex(ref){
-    const m=String(ref||'').match(/^([A-Z]+)/i); if(!m)return 0;
-    let n=0; for(const ch of m[1].toUpperCase()) n=n*26+(ch.charCodeAt(0)-64);
-    return n-1;
-  }
-
-  function parseSharedStrings(entries){
-    const b=entries.get('xl/sharedStrings.xml'); if(!b)return [];
-    const doc=xmlDoc(b); return xmlAll(doc,'si').map(si=>xmlAll(si,'t').map(t=>t.textContent||'').join(''));
-  }
-
-  function parseStyles(entries){
-    const b=entries.get('xl/styles.xml'); if(!b)return {xf:[],fmt:new Map()};
-    const doc=xmlDoc(b), fmt=new Map();
-    xmlAll(doc,'numFmt').forEach(x=>fmt.set(x.getAttribute('numFmtId'),x.getAttribute('formatCode')||''));
-    const xf=[]; const cellXfs=xmlFirst(doc,'cellXfs');
-    if(cellXfs) [...cellXfs.children].filter(x=>(x.localName||x.nodeName.split(':').pop())==='xf').forEach(x=>xf.push(x.getAttribute('numFmtId')||'0'));
-    return {xf,fmt};
-  }
-
-  function displayCellValue(c,shared,styles){
-    const type=c.getAttribute('t')||'', style=Number(c.getAttribute('s')||0);
-    if(type==='inlineStr') return xmlAll(c,'t').map(t=>t.textContent||'').join('');
-    const v=(xmlFirst(c,'v')?.textContent)||'';
-    if(type==='s') return shared[Number(v)]??'';
-    if(type==='b') return v==='1'?'TRUE':'FALSE';
-    if(type==='str' || type==='e') return v;
-    if(v!=='' && /^-?\d+(?:\.\d+)?$/.test(v)){
-      const numFmtId=styles.xf[style];
-      const code=(styles.fmt.get(numFmtId)||'').replace(/"[^"]*"/g,'').replace(/\\./g,'');
-      if(/^0+$/.test(code) && Number.isFinite(Number(v))) return String(Math.trunc(Number(v))).padStart(code.length,'0');
-    }
-    return v;
-  }
-
-  function sheetRows(bytes,shared,styles){
-    const doc=xmlDoc(bytes), rows=[]; let maxCol=0;
-    const xmlRows=xmlAll(doc,'row').slice(0,5000);
-    for(const row of xmlRows){
-      const arr=[];
-      for(const c of xmlAll(row,'c')){
-        const ci=colIndex(c.getAttribute('r')); if(ci>50)continue;
-        arr[ci]=displayCellValue(c,shared,styles); maxCol=Math.max(maxCol,ci);
-      }
-      for(let i=0;i<=maxCol;i++) if(arr[i]==null)arr[i]='';
-      if(arr.some(v=>String(v).trim()!=='')) rows.push(arr);
-    }
-    return rows;
-  }
-
-  function workbookSheetPaths(entries){
-    const wb=entries.get('xl/workbook.xml'), rel=entries.get('xl/_rels/workbook.xml.rels');
-    if(!wb || !rel) return [...entries.keys()].filter(k=>/^xl\/worksheets\/sheet\d+\.xml$/i.test(k)).sort();
-    const wdoc=xmlDoc(wb), rdoc=xmlDoc(rel), relMap=new Map();
-    xmlAll(rdoc,'Relationship').forEach(r=>relMap.set(r.getAttribute('Id'),r.getAttribute('Target')));
-    const paths=[];
-    xmlAll(wdoc,'sheet').forEach(s=>{
-      const rid=s.getAttribute('r:id')||s.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id');
-      let target=relMap.get(rid)||''; if(!target)return;
-      target=target.replace(/^\//,'');
-      if(!target.startsWith('xl/')) target='xl/'+target.replace(/^\.\//,'');
-      const parts=[]; target.split('/').forEach(seg=>{if(seg==='..')parts.pop();else if(seg!=='.')parts.push(seg)});
-      paths.push(parts.join('/'));
-    });
-    return paths.length?paths:[...entries.keys()].filter(k=>/^xl\/worksheets\/sheet\d+\.xml$/i.test(k)).sort();
-  }
-
-  async function xlsxToTSV(file){
-    const entries=await unzipXlsx(await file.arrayBuffer());
-    const shared=parseSharedStrings(entries), styles=parseStyles(entries), paths=workbookSheetPaths(entries);
-    for(const path of paths){
-      const b=entries.get(path); if(!b)continue;
-      const rows=sheetRows(b,shared,styles);
-      if(rows.length){
-        return rows.map(r=>r.slice(0,12).map(v=>String(v??'').replace(/[\t\r\n]+/g,' ')).join('\t')).join('\n');
-      }
-    }
-    throw new Error('Excel 中没有找到可导入的数据');
-  }
-
-  async function textFileToString(file){
-    const ab=await file.arrayBuffer(), bytes=new Uint8Array(ab);
-    if(bytes.length>=3 && bytes[0]===0xEF && bytes[1]===0xBB && bytes[2]===0xBF) return new TextDecoder('utf-8').decode(bytes.slice(3));
-    try{return new TextDecoder('utf-8',{fatal:true}).decode(bytes)}catch(_){
-      try{return new TextDecoder('gb18030').decode(bytes)}catch(__){return new TextDecoder('utf-8').decode(bytes)}
-    }
-  }
-
-  function csvToTSV(text){
-    if(text.includes('\t')) return text;
-    const rows=[]; let row=[], cell='', quote=false;
-    const delim=(text.split(/\r?\n/,1)[0].split(';').length>text.split(/\r?\n/,1)[0].split(',').length)?';':',';
-    for(let i=0;i<text.length;i++){
-      const ch=text[i];
-      if(quote){
-        if(ch==='"' && text[i+1]==='"'){cell+='"';i++}
-        else if(ch==='"') quote=false;
-        else cell+=ch;
-      }else{
-        if(ch==='"') quote=true;
-        else if(ch===delim){row.push(cell);cell=''}
-        else if(ch==='\n'){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell=''}
-        else cell+=ch;
-      }
-    }
-    row.push(cell.replace(/\r$/,'')); if(row.some(x=>x!==''))rows.push(row);
-    return rows.map(r=>r.map(v=>String(v).replace(/[\t\r\n]+/g,' ')).join('\t')).join('\n');
-  }
-
-  async function readDataFile(file){
-    if(!file)return;
-    const ext=(file.name.split('.').pop()||'').toLowerCase();
-    try{
-      let text='';
-      if(ext==='xlsx') text=await xlsxToTSV(file);
-      else if(ext==='csv') text=csvToTSV(await textFileToString(file));
-      else if(ext==='txt') text=await textFileToString(file);
-      else throw new Error('仅支持 XLSX、CSV、TXT 文件');
-      el('batchText').value=text; setMode('batch'); scheduleRender();
-      const count=parseBatch(text).length;
-      toast(count?`已导入 ${count} 位学生`:'文件已读取，请检查列格式');
-    }catch(err){
-      console.error(err); toast('导入失败：'+(err?.message||'文件格式异常'));
-    }finally{ el('dataFile').value=''; }
-  }
-
-  // 检测是否为移动端或微信/QQ等内置浏览器
-  function isMobileOrInApp(){
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
-    const isMob = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-    const isInApp = /MicroMessenger|QQ|AlipayClient|Weibo/i.test(ua);
-    return isMob || isInApp;
-  }
-
-  // 执行真实打印或唤起弹窗引导
-  function triggerPrintAction(){
-    const fit=layoutFits();
-    if(!fit.ok && !confirm('当前排版超出 A4，打印可能被裁切。仍然继续吗？')) return;
-
-    if(isMobileOrInApp()){
-      el('printModal').classList.add('show');
-    }else{
-      window.print();
-    }
-  }
-
-  // 手机端将第一页转换为图片下载的备用方案
-  async function exportPageAsImage(){
-    const firstSheet = document.querySelector('.sheet');
-    if(!firstSheet){ toast('没有可导出的内容'); return; }
-    toast('正在生成页面图片，请稍候...');
-    el('printModal').classList.remove('show');
-    try{
-      const canvas = await html2canvas(firstSheet, {scale:2, useCORS:true, allowTaint:true});
-      const dataUrl = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = dataUrl;
-      a.download = '印啦啦姓名贴排版.png';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      toast('图片已生成，长按图片可保存到相册');
-    }catch(err){
-      console.error(err);
-      toast('图片生成失败，请直接使用浏览器打印');
-    }
-  }
-
-  window.__nameTagXlsxTest={xlsxToTSV,parseBatch,unzipXlsx,workbookSheetPaths,sheetRows,parseSharedStrings,parseStyles};
-
-  function bind(){
-    $$('#modeSeg button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
-    $$('#presetRow .preset').forEach(b=>b.addEventListener('click',()=>applyPreset(b.dataset.preset)));
-    ['cols','rows','marginLeft','labelW','labelH','marginTop','gapX','gapY','radius'].forEach(id=>el(id).addEventListener('input',()=>{markCustomLayout();saveSettings();scheduleRender()}));
-    ['offsetX','offsetY','contentMode','showClass','showNo','showPhone','fontFamily','textAlign','nameColor','infoColor','bgFit','bgFade','bgPosX','bgPosY','themeShuffle','showCut'].forEach(id=>el(id).addEventListener('input',()=>{saveSettings();scheduleRender()}));
-    ['singleName','singleClass','singleNo','singlePhone','singleCount','batchText','batchRepeat'].forEach(id=>el(id).addEventListener('input',scheduleRender));
-    el('countQuick').addEventListener('change',()=>{if(el('countQuick').value!=='custom'){el('singleCount').value=el('countQuick').value;scheduleRender()}});
-    el('singleCount').addEventListener('input',()=>{const v=el('singleCount').value;el('countQuick').value=['40','80','120'].includes(v)?v:'custom'});
-    syncRange('nameSize','nameSizeNum');syncRange('infoSize','infoSizeNum');syncRange('textY','textYNum');
-    el('bgFiles').addEventListener('change',e=>readBgFiles(e.target.files));
-    el('clearBg').addEventListener('click',()=>{state.customBgs=[];if(state.theme==='custom')state.theme='rainbow';el('bgFiles').value='';el('fileList').textContent='可一次选择多张，生成时自动循环使用。';renderThemePicker();scheduleRender();toast('已清空自定义背景')});
-    el('dataFile').addEventListener('change',e=>readDataFile(e.target.files[0]));
-    el('exampleBtn').addEventListener('click',fillExample);
-    el('resetBtn').addEventListener('click',()=>{if(confirm('恢复默认设置？学生姓名数据也会清空。')) resetAll()});
-    
-    el('printBtn').addEventListener('click', triggerPrintAction);
-
-    el('modalCloseBtn').addEventListener('click', ()=>{
-      el('printModal').classList.remove('show');
-      window.print();
-    });
-    el('modalImgBtn').addEventListener('click', exportPageAsImage);
-    el('printModal').classList.remove('show'); // Ensure hidden initially
-    el('printModal').addEventListener('click', (e)=>{
-      if(e.target === el('printModal')) el('printModal').classList.remove('show');
-    });
-
-    window.addEventListener('beforeprint',render);
-  }
-
-  loadSettings();bind();renderThemePicker();render();
-})();
+function setTheme(mode){
+  document.body.classList.toggle('dark',mode==='night');
+  localStorage.setItem('giftbook_theme',mode);
+  updateThemeButtons();
+}
+function updateThemeButtons(){
+  let mode=localStorage.getItem('giftbook_theme')||'day';
+  document.body.classList.toggle('dark',mode==='night');
+  const d=document.getElementById('dayBtn'),n=document.getElementById('nightBtn'),td=document.getElementById('topDayBtn'),tn=document.getElementById('topNightBtn');
+  if(d&&n){d.classList.toggle('active',mode==='day');n.classList.toggle('active',mode==='night')}
+  if(td&&tn){td.classList.toggle('active',mode==='day');tn.classList.toggle('active',mode==='night')}
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',mode==='night'?'#111315':'#f6f7f9');
+}
+function excelRowsFromRecords(){
+  return state.records.map(r=>({'日期':r.date||'','姓名':r.name||'','类型':r.type==='in'?'收礼':'随礼','内容':r.content||'礼金','礼金金额':Number(r.amount)||0,'支付方式':r.payment||'','礼品':r.gift||'','事项':r.eventName||'结婚','备注':r.note||''}));
+}
+function excelInstructions(){return [
+ {'项目':'日期','内容':'建议格式：2026-09-13；不能为空。'},
+ {'项目':'姓名','内容':'收礼/随礼对象姓名；不能为空。'},
+ {'项目':'类型','内容':'只能填写：收礼 或 随礼。'},
+ {'项目':'内容','内容':'只能填写：礼金、礼品、礼金+礼品。'},
+ {'项目':'礼金金额','内容':'有礼金时填写数字，例如 500；没有礼金填写 0。不要写“500元”。'},
+ {'项目':'支付方式','内容':'礼金建议填写：现金、支付宝、微信。礼品可留空。'},
+ {'项目':'礼品','内容':'例如：牛奶、茶叶、黄金首饰；没有礼品可留空。'},
+ {'项目':'事项','内容':'例如：结婚、生子、寿宴、丧事、乔迁、升学；不能为空。'},
+ {'项目':'备注','内容':'可以留空，例如：张三儿子结婚。'},
+ {'项目':'表头','内容':'第一行表头不要删除、改名或合并单元格。'},
+ {'项目':'导入方式','内容':'每一行代表一笔记录；导入不会自动覆盖已有记录。'},
+ {'项目':'重要提示','内容':'如果同一个人既有礼金又有礼品，请填写“礼金+礼品”，同时填写礼金金额和礼品内容。'},
+ {'项目':'建议','内容':'批量导入前先备份现有数据。'}
+];}
+function downloadWorkbook(rows,filename){
+ if(typeof XLSX==='undefined')return toast('Excel 功能组件加载失败，请联网后重试');
+ const wb=XLSX.utils.book_new(), ws=XLSX.utils.json_to_sheet(rows), help=XLSX.utils.json_to_sheet(excelInstructions());
+ ws['!cols']=[{wch:14},{wch:16},{wch:10},{wch:14},{wch:12},{wch:12},{wch:28},{wch:20},{wch:30}]; help['!cols']=[{wch:16},{wch:80}];
+ XLSX.utils.book_append_sheet(wb,ws,'礼金记录');XLSX.utils.book_append_sheet(wb,help,'填写说明');XLSX.writeFile(wb,filename);
+}
+function exportExcel(){downloadWorkbook(excelRowsFromRecords(),'礼薄记录_'+new Date().toISOString().slice(0,10)+'.xlsx');toast('Excel 导出成功')}
+function downloadExcelTemplate(){downloadWorkbook([{'日期':'2026-09-13','姓名':'张三','类型':'收礼','内容':'礼金+礼品','礼金金额':500,'支付方式':'微信','礼品':'茶叶','事项':'结婚','备注':'示例'}],'礼薄批量导入模板.xlsx')}
+function importExcel(){document.getElementById('excelFile').click()}
+function normalizeHeader(v){return String(v??'').trim().replace(/\\s+/g,'')}
+function parseExcelDate(v){
+ if(v instanceof Date&&!isNaN(v))return v.toISOString().slice(0,10);
+ if(typeof v==='number'&&typeof XLSX!=='undefined'){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`}
+ let x=String(v??'').trim().replace(/[./]/g,'-');let m=x.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/);return m?`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`:x;
+}
+function handleExcel(ev){
+ const f=ev.target.files[0];if(!f)return;if(typeof XLSX==='undefined'){toast('Excel 组件尚未加载，请检查网络后重试');ev.target.value='';return}
+ const rd=new FileReader();rd.onload=()=>{try{
+  const wb=XLSX.read(rd.result,{type:'array',cellDates:true}), sheetName=wb.SheetNames.includes('礼金记录')?'礼金记录':wb.SheetNames[0], rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{defval:'',raw:true});
+  const required=['日期','姓名','类型','内容','礼金金额','支付方式','礼品','事项','备注'];if(!rows.length)throw Error('没有数据');const headers=Object.keys(rows[0]).map(normalizeHeader);const missing=required.filter(x=>!headers.includes(x));if(missing.length)throw Error('缺少列：'+missing.join('、'));
+  let ok=0,bad=[];rows.forEach((row,i)=>{const r={};Object.keys(row).forEach(k=>r[normalizeHeader(k)]=row[k]);const name=String(r['姓名']??'').trim(),type=String(r['类型']??'').trim(),content=String(r['内容']??'').trim(),payment=String(r['支付方式']??'').trim(),gift=String(r['礼品']??'').trim(),eventName=String(r['事项']??'').trim(),note=String(r['备注']??'').trim(),date=parseExcelDate(r['日期']),amount=Number(r['礼金金额']||0);
+   const payOK=!payment||['现金','支付宝','微信'].includes(payment), contentOK=['礼金','礼品','礼金+礼品'].includes(content), amountOK=content==='礼品'?amount===0:amount>0, giftOK=content==='礼品'?!!gift:true;
+   if(!name||!date||!eventName||!['收礼','随礼'].includes(type)||!contentOK||!amountOK||!payOK||!giftOK){bad.push(i+2);return}
+   let evn=state.events.find(e=>e.name===eventName);if(!evn){evn={id:Date.now().toString()+Math.random(),name:eventName,date,records:[],system:false};state.events.push(evn)}
+   state.records.push({id:Date.now().toString()+Math.random()+i,date,name,type:type==='收礼'?'in':'out',content,amount,payment:content==='礼品'?'':payment,gift,eventId:evn.id,eventName,note});ok++;
+  });save();toast(`导入完成：成功 ${ok} 条${bad.length?'，失败 '+bad.length+' 条（第 '+bad.slice(0,8).join('、')+' 行）':''}`)
+ }catch(e){toast('Excel 导入失败：'+e.message)}ev.target.value=''};rd.readAsArrayBuffer(f)
+}
+function clearAll(){if(!confirm('确定清空所有礼薄数据吗？此操作不可恢复。'))return;state={events:[],records:[]};save();toast('已清空所有数据')}
+updateThemeButtons();renderAll();
 </script>
 </body>
 </html>
