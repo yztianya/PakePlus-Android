@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#f6f7f9">
-<title>礼薄 · 人情账本 v1.7</title>
+<title>礼薄 · 人情账本 v1.8</title>
 <style>
 :root{
   --blue:#1683f7; --blue2:#0b78ee; --bg:#f5f6f8; --card:#fff;
@@ -205,7 +205,7 @@ body.dark .theme-pills button.active{background:#1b1e22}
 
     <div class="setting-title">关于应用</div>
     <div class="card setting-card">
-      <div class="setting-row"><div class="setting-icon">📖</div><div class="setting-main"><b>礼薄 · 人情账本</b><small>离线优先，数据由你自己掌握</small></div><div class="arrow">v1.7</div></div>
+      <div class="setting-row"><div class="setting-icon">📖</div><div class="setting-main"><b>礼薄 · 人情账本</b><small>离线优先，数据由你自己掌握</small></div><div class="arrow">v1.8</div></div>
     </div>
     <div class="setting-title">数据存储与换机</div>
     <div class="card setting-card"><div class="notice" style="margin:0;border-radius:0">
@@ -318,7 +318,7 @@ function renderHome(){
  if(!state.events.length){box.innerHTML='<div class="empty">还没有事项，先新建一个吧</div>';return}
  box.innerHTML=state.events.map(e=>{
    let rs=state.records.filter(r=>r.eventId===e.id), ins=rs.filter(r=>r.type==='in').reduce((a,r)=>a+Number(r.amount),0), outs=rs.filter(r=>r.type==='out').reduce((a,r)=>a+Number(r.amount),0);
-   return `<div class="event" onclick="openEventRecords('${e.id}')"><div class="event-icon">🎉</div><div class="event-main"><b>${esc(e.name)}</b><small>${esc(e.date||'未设置日期')} · ${rs.length} 笔</small></div><div class="event-total"><b>${money(ins-outs)}</b><small>收 ${money(ins)} · 随 ${money(outs)}</small></div><div class="event-actions" onclick="event.stopPropagation()">${!e.system?`<button onclick="editEvent('${e.id}')" title="修改事项">✎</button><button class="event-delete" onclick="deleteEvent('${e.id}')" title="删除事项">×</button>`:`<span class="system-lock" title="系统事项，不可修改删除">🔒</span>`}</div></div>`
+   return `<div class="event" onclick="openEventRecords('${e.id}')"><div class="event-icon">🎉</div><div class="event-main"><b>${esc(e.name)}</b><small>${esc(e.date||'添加新记录日期')} · ${rs.length} 笔</small></div><div class="event-total"><b>${money(ins-outs)}</b><small>收 ${money(ins)} · 随 ${money(outs)}</small></div><div class="event-actions" onclick="event.stopPropagation()">${!e.system?`<button onclick="editEvent('${e.id}')" title="修改事项">✎</button><button class="event-delete" onclick="deleteEvent('${e.id}')" title="删除事项">×</button>`:`<span class="system-lock" title="系统事项，不可修改删除">🔒</span>`}</div></div>`
  }).join('');
 }
 function openEventRecords(id){currentEvent=id;switchPage('detail');}
